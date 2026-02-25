@@ -1,87 +1,83 @@
-import { Search, ShoppingCart, BarChart3, MapPin, Flame, Tag } from "lucide-react";
+import { Search, ShoppingCart, MapPin } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
 
 const Header = () => {
-  const [city, setCity] = useState("Алматы");
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+  const { totalItems } = useCart();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Top row */}
-        <div className="flex items-center gap-4 h-16">
+    <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center gap-6 h-14">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-              <Tag className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-display font-extrabold text-foreground tracking-tight">
+          <Link to="/" className="shrink-0">
+            <span className="text-lg font-semibold tracking-tight text-foreground">
               MinPrice
             </span>
-          </a>
+          </Link>
 
           {/* Search */}
-          <div className="flex-1 max-w-2xl">
+          <form onSubmit={handleSearch} className="flex-1 max-w-lg">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Найти товары..."
+                placeholder="Поиск товаров..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-24 h-10 rounded-xl border border-input bg-secondary text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"
+                className="w-full pl-9 pr-4 h-9 rounded-lg bg-secondary text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 transition-all"
               />
-              <button className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
-                Найти
-              </button>
             </div>
-          </div>
+          </form>
 
-          {/* City */}
-          <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <MapPin className="w-4 h-4" />
-            <span className="font-medium">{city}</span>
-          </button>
+          {/* Right side */}
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Алматы</span>
+            </button>
+
+            <Link
+              to="/cart"
+              className="relative flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex items-center gap-1 -mb-px pb-0">
-          <NavItem icon={<Flame className="w-4 h-4" />} label="Главная" active />
-          <NavItem icon={<Search className="w-4 h-4" />} label="Поиск" />
-          <NavItem icon={<Tag className="w-4 h-4" />} label="Скидки" />
-          <NavItem icon={<ShoppingCart className="w-4 h-4" />} label="Корзина" badge={3} />
+        <nav className="flex items-center gap-6 -mb-px text-sm">
+          <NavLink to="/" label="Главная" />
+          <NavLink to="/search" label="Каталог" />
         </nav>
       </div>
     </header>
   );
 };
 
-const NavItem = ({
-  icon,
-  label,
-  active,
-  badge,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-  badge?: number;
-}) => (
-  <button
-    className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors relative ${
-      active
-        ? "text-primary border-b-2 border-primary bg-accent"
-        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-    }`}
+const NavLink = ({ to, label }: { to: string; label: string }) => (
+  <Link
+    to={to}
+    className="py-2.5 text-muted-foreground hover:text-foreground transition-colors border-b border-transparent hover:border-foreground text-[13px]"
   >
-    {icon}
     {label}
-    {badge && (
-      <span className="ml-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold flex items-center justify-center">
-        {badge}
-      </span>
-    )}
-  </button>
+  </Link>
 );
 
 export default Header;
