@@ -11,14 +11,14 @@ const Index = () => {
   const priceDrops = allProducts.filter((p) => p.discountPercent >= 30 && p.discountPercent < 50);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
         {/* Hot Deals */}
         <section className="mb-12">
-          <div className="flex items-baseline justify-between mb-4">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <div className="flex items-baseline justify-between mb-3 sm:mb-4">
+            <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
               Выгодные предложения
             </h1>
             <span className="text-xs text-muted-foreground">
@@ -26,7 +26,7 @@ const Index = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {hotDeals.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -60,7 +60,7 @@ const Index = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {(activeTab === "deals" ? priceDrops : allProducts.slice(0, 3)).map(
               (product) => (
                 <ProductCard key={product.id} product={product} />
