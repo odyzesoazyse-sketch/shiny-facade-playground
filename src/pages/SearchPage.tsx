@@ -46,10 +46,10 @@ const SearchPage = () => {
   }, [query, selectedCategory, selectedStore, sortBy]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
         <div className="flex items-baseline justify-between mb-6">
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {query ? `Результаты: «${query}»` : "Каталог"}
@@ -60,14 +60,15 @@ const SearchPage = () => {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
-          {/* Categories */}
-          <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          {/* Categories - horizontal scroll on mobile */}
+          <div className="w-full overflow-x-auto pb-1 -mx-3 px-3 sm:mx-0 sm:px-0 sm:w-auto sm:overflow-visible">
+            <div className="flex gap-1 sm:flex-wrap">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-xs transition-colors whitespace-nowrap ${
                   selectedCategory === cat
                     ? "bg-foreground text-background"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
@@ -76,6 +77,7 @@ const SearchPage = () => {
                 {cat}
               </button>
             ))}
+            </div>
           </div>
 
           <div className="w-px h-5 bg-border mx-1" />
@@ -105,7 +107,7 @@ const SearchPage = () => {
 
         {/* Products */}
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
