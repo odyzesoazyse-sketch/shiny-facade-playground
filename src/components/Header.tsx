@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, MapPin } from "lucide-react";
+import { Search, ShoppingCart, MapPin, Tag, Barcode } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -64,7 +64,9 @@ const Header = () => {
         {/* Nav */}
         <nav className="flex items-center gap-6 -mb-px text-sm">
           <NavLink to="/" label="Главная" />
-          <NavLink to="/search" label="Каталог" />
+          <NavLink to="/search" label="Поиск" />
+          <NavLink to="/search?sort=discount" label="Скидки" />
+          <NavLink to="/cart" label="Корзина" />
         </nav>
       </div>
     </header>
