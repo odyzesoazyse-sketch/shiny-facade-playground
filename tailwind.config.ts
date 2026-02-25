@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Manrope', 'Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -46,6 +50,18 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        discount: {
+          DEFAULT: "hsl(var(--discount-bg))",
+          foreground: "hsl(var(--discount-foreground))",
+        },
+        savings: {
+          DEFAULT: "hsl(var(--savings-bg))",
+          foreground: "hsl(var(--savings-foreground))",
+        },
+        "badge-yellow": {
+          DEFAULT: "hsl(var(--badge-yellow))",
+          foreground: "hsl(var(--badge-yellow-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
