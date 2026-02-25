@@ -50,67 +50,103 @@ const ProductPage = () => {
           Назад к поиску
         </Link>
 
-        {/* Main product section */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-6">
-          <div className="grid md:grid-cols-[1fr,1.4fr] gap-0">
-            {/* Image */}
-            <div className="relative flex items-center justify-center bg-secondary/30 p-10 aspect-square md:aspect-auto md:min-h-[400px]">
-              {/* Savings badge */}
-              <div className="absolute top-4 right-4">
-                <div className="savings-badge text-sm px-3 py-1.5">
-                  -{product.savingsAmount} ₸
-                  <span className="block text-[10px] font-normal opacity-80">экономия</span>
-                </div>
+        {/* Compact product header */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-4">
+          <div className="flex gap-3 p-3 sm:p-5">
+            {/* Small image */}
+            <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 rounded-xl bg-secondary/30 flex items-center justify-center">
+              <div className="absolute top-1.5 left-1.5">
+                <span className="discount-badge text-[10px]">-{product.discountPercent}%</span>
               </div>
               <img
                 src={product.image}
                 alt={product.name}
-                className="max-w-[60%] max-h-[60%] object-contain"
+                className="max-w-[70%] max-h-[70%] object-contain"
               />
             </div>
 
-            {/* Details */}
-            <div className="p-6 md:p-8">
-              <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-3">
-                {product.name}
-              </h1>
-
-              {/* Brand & Country */}
-              <div className="flex flex-wrap items-center gap-3 mb-3">
-                {product.brand && (
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <Tag className="w-3 h-3" />
-                    <span className="font-medium text-foreground">{product.brand}</span>
-                  </span>
-                )}
-                {product.country && (
-                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <Globe className="w-3 h-3" />
-                    {product.country}
-                  </span>
-                )}
+            {/* Info beside image */}
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <h1 className="text-base sm:text-xl font-semibold tracking-tight text-foreground leading-snug line-clamp-3 mb-1.5">
+                  {product.name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                  {product.brand && (
+                    <span className="inline-flex items-center gap-1">
+                      <Tag className="w-2.5 h-2.5" />
+                      <span className="font-medium text-foreground">{product.brand}</span>
+                    </span>
+                  )}
+                  {product.country && (
+                    <span className="inline-flex items-center gap-1">
+                      <Globe className="w-2.5 h-2.5" />
+                      {product.country}
+                    </span>
+                  )}
+                  {product.weight && (
+                    <span>{product.weight}</span>
+                  )}
+                </div>
               </div>
 
-              {/* Breadcrumbs */}
-              {product.breadcrumbs && (
-                <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground mb-5">
-                  {product.breadcrumbs.map((crumb, idx) => (
-                    <span key={idx} className="flex items-center gap-1">
-                      {idx > 0 && <ChevronRight className="w-2.5 h-2.5" />}
-                      <span className="hover:text-foreground cursor-pointer">{crumb}</span>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Add to cart button */}
-              <button
-                onClick={() => addItem(product, product.stores[0].store, bestPrice)}
-                className="w-full h-12 rounded-xl bg-foreground text-background font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity mb-6"
-              >
-                🛒 Добавить в корзину
-              </button>
+              {/* Price summary */}
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-lg sm:text-xl font-bold text-foreground">{bestPrice} ₸</span>
+                {worstPrice > bestPrice && (
+                  <span className="price-old text-xs">{worstPrice} ₸</span>
+                )}
+                <span className="savings-badge text-[10px] ml-1">-{product.savingsAmount} ₸</span>
+              </div>
             </div>
+          </div>
+
+          {/* Inline store prices */}
+          <div className="border-t border-border px-3 sm:px-5 py-2.5 space-y-1.5">
+            {product.stores.map((store) => {
+              const isBest = store.price === bestPrice;
+              return (
+                <div
+                  key={store.store}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: store.color }}
+                    />
+                    <span className={`text-xs ${isBest ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                      {store.store}
+                    </span>
+                    {isBest && <span className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-foreground font-medium">мин</span>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {store.oldPrice && (
+                      <span className="line-through text-[11px] text-muted-foreground/60">{store.oldPrice} ₸</span>
+                    )}
+                    <span className={`text-xs font-semibold ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
+                      {store.price} ₸
+                    </span>
+                    <button
+                      onClick={() => addItem(product, store.store, store.price)}
+                      className="w-6 h-6 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Best price CTA */}
+          <div className="px-3 sm:px-5 pb-3 pt-1">
+            <button
+              onClick={() => addItem(product, product.stores[0].store, bestPrice)}
+              className="w-full h-10 rounded-xl bg-foreground text-background font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              🛒 В корзину за {bestPrice} ₸
+            </button>
           </div>
         </div>
 
@@ -182,11 +218,11 @@ const ProductPage = () => {
           </div>
         )}
 
-        {/* Store comparison */}
+        {/* Detailed store comparison */}
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-border">
-            <h2 className="text-base font-semibold text-foreground">
-              Цены в магазинах ({product.stores.length})
+          <div className="px-4 sm:px-6 py-3 border-b border-border">
+            <h2 className="text-sm font-semibold text-foreground">
+              Подробнее о магазинах ({product.stores.length})
             </h2>
           </div>
 
@@ -195,63 +231,43 @@ const ProductPage = () => {
             return (
               <div
                 key={store.store}
-                className={`flex items-start gap-4 px-6 py-4 ${
+                className={`flex items-center gap-3 px-4 sm:px-6 py-3 ${
                   idx < product.stores.length - 1 ? "border-b border-border" : ""
                 } ${isBest ? "bg-secondary/30" : ""}`}
               >
-                {/* Store product image */}
-                <div className="w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center shrink-0">
-                  <img
-                    src={store.storeImage || product.image}
-                    alt=""
-                    className="max-w-[80%] max-h-[80%] object-contain"
-                  />
-                </div>
-
-                {/* Store info */}
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: store.color }}
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: store.color }}
-                    />
+                  <div className="flex items-center gap-1.5">
                     <span className="text-sm font-medium text-foreground">{store.store}</span>
-                    {isBest && <span className="savings-badge">Лучшая цена</span>}
+                    {isBest && <span className="savings-badge text-[9px]">Лучшая цена</span>}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
+                  <p className="text-[11px] text-muted-foreground line-clamp-1">
                     {store.storeName || product.name}
                   </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="text-right">
+                    {store.oldPrice && (
+                      <div className="text-[10px] line-through text-muted-foreground">{store.oldPrice} ₸</div>
+                    )}
+                    <div className={`text-sm font-semibold ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
+                      {store.price} ₸
+                    </div>
+                  </div>
                   {store.storeUrl && (
                     <a
                       href={store.storeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground mt-1 transition-colors"
+                      className="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      Перейти в магазин
-                      <ExternalLink className="w-2.5 h-2.5" />
+                      <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
-                </div>
-
-                {/* Price + add */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right">
-                    {store.oldPrice && (
-                      <div className="text-xs line-through text-muted-foreground">
-                        {store.oldPrice} ₸
-                      </div>
-                    )}
-                    <div className={`text-base font-semibold ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
-                      {store.price} ₸
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => addItem(product, store.store, store.price)}
-                    className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
                 </div>
               </div>
             );
