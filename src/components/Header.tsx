@@ -117,7 +117,7 @@ const MobileBottomNav = () => {
             >
               <tab.icon className="w-5 h-5" />
               <span className="text-[10px]">{tab.label}</span>
-              {tab.badge && tab.badge > 0 && (
+              {tab.badge != null && tab.badge > 0 && (
                 <span className="absolute -top-0.5 right-0.5 w-4 h-4 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
                   {tab.badge}
                 </span>
