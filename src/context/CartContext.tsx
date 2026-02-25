@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Product } from "@/data/mockProducts";
+import { toast } from "sonner";
 
 export interface CartItem {
   product: Product;
@@ -18,10 +19,25 @@ interface CartContextType {
   totalPrice: number;
 }
 
+const CART_KEY = "minprice_cart";
+
+const loadCart = (): CartItem[] => {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(loadCart);
+
+  useEffect(() => {
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+  }, [items]);
 
   const addItem = (product: Product, store: string, price: number) => {
     setItems((prev) => {
@@ -29,12 +45,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         (i) => i.product.id === product.id && i.store === store
       );
       if (existing) {
+        toast.success(`${product.name}`, { description: `Количество: ${existing.quantity + 1}` });
         return prev.map((i) =>
           i.product.id === product.id && i.store === store
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       }
+      toast.success("Добавлено в корзину", { description: `${product.name} — ${price} ₸` });
       return [...prev, { product, store, price, quantity: 1 }];
     });
   };
@@ -43,6 +61,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) =>
       prev.filter((i) => !(i.product.id === productId && i.store === store))
     );
+    toast("Товар удалён из корзины");
   };
 
   const updateQuantity = (productId: string, store: string, quantity: number) => {
@@ -59,7 +78,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    toast("Корзина очищена");
+  };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
