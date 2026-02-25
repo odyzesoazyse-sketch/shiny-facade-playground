@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { TrendingDown, TrendingUp, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts } from "@/data/mockProducts";
@@ -14,28 +15,27 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
-        {/* Hot Deals */}
-        <section className="mb-12">
-          <div className="flex items-baseline justify-between mb-3 sm:mb-4">
-            <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
-              Выгодные предложения
-            </h1>
-            <span className="text-xs text-muted-foreground">
-              {allProducts.length} товаров
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {hotDeals.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8">
+        {/* Hero / описание */}
+        <section className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-1.5">
+            Сравни цены — купи дешевле
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-lg mb-4">
+            Находим лучшие цены на продукты среди Arbuz, Kaspi, MGO и других магазинов Казахстана. Экономьте до 70% на каждой покупке.
+          </p>
+          <Link
+            to="/search"
+            className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-secondary text-muted-foreground text-sm hover:bg-secondary/80 transition-colors w-full sm:w-auto"
+          >
+            <Search className="w-4 h-4" />
+            Найти товар...
+          </Link>
         </section>
 
-        {/* Price changes */}
-        <section>
-          <div className="flex items-center gap-1 mb-4">
+        {/* Скидки */}
+        <section className="mb-8">
+          <div className="flex items-center gap-1 mb-3">
             <button
               onClick={() => setActiveTab("deals")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -61,16 +61,32 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {(activeTab === "deals" ? priceDrops : allProducts.slice(0, 3)).map(
-              (product) => (
-                <ProductCard key={product.id} product={product} />
-              )
-            )}
+            {(activeTab === "deals" ? hotDeals : allProducts.slice(0, 4)).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+
+        {/* Весь каталог */}
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              Весь каталог
+            </h2>
+            <span className="text-xs text-muted-foreground">
+              {allProducts.length} товаров
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+            {allProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-border mt-20 py-6">
+      <footer className="border-t border-border mt-12 py-6">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center text-xs text-muted-foreground">
           © 2025 MinPrice.kz — Сравнение цен на продукты
         </div>
