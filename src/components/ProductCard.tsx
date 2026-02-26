@@ -22,14 +22,10 @@ const ProductCard = ({ product }: { product: Product }) => {
       {/* Image */}
       <div className="relative p-3 pb-0">
         {/* Separate badges like original */}
-        <span className="discount-badge absolute top-2 left-2 z-10">
-          -{product.discountPercent}%
-        </span>
-        <span className="savings-badge absolute top-2 left-[calc(2rem+0.25rem+var(--badge-offset,2.5rem))] z-10"
-          style={{ left: `${2 + (String(product.discountPercent).length * 0.45 + 2.2) * 0.5}rem` }}
-        >
-          -{product.savingsAmount} ₸
-        </span>
+        <div className="absolute top-2 left-2 z-10 flex gap-1">
+          <span className="discount-badge">-{product.discountPercent}%</span>
+          <span className="savings-badge">-{product.savingsAmount} ₸</span>
+        </div>
         <div className="aspect-square flex items-center justify-center rounded-lg bg-secondary/50">
           <img
             src={product.image}
