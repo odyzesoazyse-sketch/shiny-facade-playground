@@ -120,7 +120,7 @@ const BottomSearchBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
+    <div className="fixed bottom-0 sm:bottom-6 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
       {/* Gradient fade */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none" />
 
@@ -128,7 +128,7 @@ const BottomSearchBar = () => {
         {/* Search bar - ChatGPT/Grok style */}
         <form onSubmit={handleSearch} className="px-3 sm:px-4 pt-3 pb-2 max-w-2xl mx-auto">
           <div
-            className={`relative flex items-center gap-2 rounded-2xl border-2 bg-card shadow-lg transition-all duration-200 ${
+            className={`relative flex items-center gap-2 rounded-3xl border-2 bg-card shadow-lg transition-all duration-200 ${
               isFocused
                 ? "border-primary shadow-primary/20 shadow-xl"
                 : "border-border hover:border-muted-foreground/30"
