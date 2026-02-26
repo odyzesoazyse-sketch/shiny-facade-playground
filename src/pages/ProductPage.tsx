@@ -11,7 +11,7 @@ import { useCart } from "@/context/CartContext";
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { items, addItem, updateQuantity, removeItem } = useCart();
-  const [historyPeriod, setHistoryPeriod] = useState<"7" | "30" | "90" | "180">("30");
+  const [historyPeriod, setHistoryPeriod] = useState<"7" | "30" | "90" | "180">("90");
   const product = allProducts.find((p) => p.id === id);
 
   const similarProducts = useMemo(() => {
