@@ -121,4 +121,18 @@
     @apply text-lg font-semibold tracking-tight;
     color: hsl(var(--price-new));
   }
+
+  .best-price-label {
+    @apply text-[9px] font-bold uppercase px-1 py-px rounded;
+    background: hsl(var(--savings-bg) / 0.15);
+    color: hsl(var(--savings-bg));
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
