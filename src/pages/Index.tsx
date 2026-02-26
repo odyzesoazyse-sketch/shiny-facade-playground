@@ -3,7 +3,8 @@ import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "luci
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import { allProducts } from "@/data/mockProducts";
+import { allProducts, storeNames } from "@/data/mockProducts";
+import StoreLogo from "@/components/StoreLogo";
 
 
 const Index = () => {
@@ -49,11 +50,12 @@ const Index = () => {
             Отслеживаем изменения цен каждый день, чтобы вы всегда покупали выгодно.
           </p>
           <div className="flex flex-wrap gap-2">
-            {["Magnum", "Arbuz", "Kaspi Magazin", "Small", "Galmart"].map((store) => (
+            {storeNames.map((store) => (
               <span
                 key={store}
-                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground"
+                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground flex items-center gap-1.5"
               >
+                <StoreLogo store={store} size="sm" />
                 {store}
               </span>
             ))}

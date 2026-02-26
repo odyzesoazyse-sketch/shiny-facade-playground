@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Plus, Share2, Tag, Globe } from "lucide-react";
+import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
@@ -132,10 +133,7 @@ const ProductPage = () => {
               return (
                 <div key={store.store} className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: store.color }}
-                    />
+                    <StoreLogo store={store.store} size="md" />
                     <span className={`text-xs ${isBest ? "font-medium text-foreground" : "text-muted-foreground"}`}>
                       {store.store}
                     </span>
