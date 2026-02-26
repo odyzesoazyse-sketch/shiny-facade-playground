@@ -36,7 +36,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 sm:pb-0">
+    <div className="min-h-screen bg-background pb-32 sm:pb-16">
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
