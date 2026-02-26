@@ -1,11 +1,15 @@
-import { Search, ShoppingCart, MapPin, Home, Tag } from "lucide-react";
+import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import logo from "@/assets/logo.png";
 
+const cities = ["Алматы", "Астана", "Шымкент", "Караганда", "Актобе"];
+
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("Алматы");
+  const [cityOpen, setCityOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
 
@@ -29,26 +33,57 @@ const Header = () => {
               </span>
             </Link>
 
-            {/* Search */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-lg">
-              <div className="relative">
+            {/* Search with button */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-lg flex gap-1.5">
+              <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Поиск товаров..."
+                  placeholder="Найти товары..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-8 sm:pl-9 pr-3 h-8 sm:h-9 rounded-lg bg-secondary text-foreground text-xs sm:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 transition-all"
                 />
               </div>
+              <button
+                type="submit"
+                className="hidden sm:flex h-9 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium items-center hover:bg-primary/90 transition-colors"
+              >
+                Найти
+              </button>
             </form>
 
             {/* Right side */}
             <div className="flex items-center gap-3">
-              <button className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Алматы</span>
-              </button>
+              {/* City dropdown */}
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setCityOpen(!cityOpen)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{selectedCity}</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                {cityOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setCityOpen(false)} />
+                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[120px]">
+                      {cities.map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => { setSelectedCity(city); setCityOpen(false); }}
+                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors ${
+                            city === selectedCity ? "text-foreground font-medium" : "text-muted-foreground"
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
 
               <Link
                 to="/cart"
@@ -64,7 +99,7 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Desktop nav - hidden on mobile */}
+          {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-6 -mb-px text-sm">
             <NavLink to="/" label="Главная" />
             <NavLink to="/search" label="Поиск" />
@@ -74,7 +109,6 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile bottom nav */}
       <MobileBottomNav />
     </>
   );

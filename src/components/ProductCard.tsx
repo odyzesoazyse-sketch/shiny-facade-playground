@@ -21,10 +21,11 @@ const ProductCard = ({ product }: { product: Product }) => {
     >
       {/* Image */}
       <div className="relative p-3 pb-0">
-        {/* Single merged badge */}
-        <span className="discount-badge absolute top-2 left-2 z-10">
-          -{product.discountPercent}% · -{product.savingsAmount} ₸
-        </span>
+        {/* Separate badges like original */}
+        <div className="absolute top-2 left-2 z-10 flex gap-1">
+          <span className="discount-badge">-{product.discountPercent}%</span>
+          <span className="savings-badge">-{product.savingsAmount} ₸</span>
+        </div>
         <div className="aspect-square flex items-center justify-center rounded-lg bg-secondary/50">
           <img
             src={product.image}
