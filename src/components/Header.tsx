@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown } from "lucide-react";
+import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
@@ -94,12 +94,13 @@ const NavLink = ({ to, label }: { to: string; label: string }) => (
 
 const placeholders = [
   "Найти самые дешёвые товары...",
-  "Сравнить цены на продукты...",
-  "Найти скидки среди 5 магазинов...",
+  "Сравнить цены на молоко, хлеб...",
+  "Где дешевле купить продукты?",
 ];
 
 const BottomSearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
@@ -108,10 +109,10 @@ const BottomSearchBar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
     }
   };
 
-  // Mobile nav tabs (without search - it's now the bar itself)
   const tabs = [
     { to: "/", icon: Home, label: "Главная" },
     { to: "/search?sort=discount", icon: Tag, label: "Скидки" },
@@ -119,56 +120,71 @@ const BottomSearchBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
-      {/* Search bar */}
-      <form onSubmit={handleSearch} className="px-3 pt-2 pb-1.5 sm:pb-2 max-w-2xl mx-auto">
-        <div className="relative flex gap-1.5">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+    <div className="fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      {/* Gradient fade */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none" />
+
+      <div className="relative">
+        {/* Search bar - ChatGPT/Grok style */}
+        <form onSubmit={handleSearch} className="px-3 sm:px-4 pt-3 pb-2 max-w-2xl mx-auto">
+          <div
+            className={`relative flex items-center gap-2 rounded-2xl border-2 bg-card shadow-lg transition-all duration-200 ${
+              isFocused
+                ? "border-primary shadow-primary/20 shadow-xl"
+                : "border-border hover:border-muted-foreground/30"
+            }`}
+          >
+            <Search className={`absolute left-4 w-5 h-5 transition-colors ${isFocused ? "text-primary" : "text-muted-foreground"}`} />
             <input
               type="text"
               placeholder={placeholders[0]}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 h-9 sm:h-10 rounded-lg bg-secondary text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              className="w-full pl-12 pr-2 h-12 sm:h-[52px] bg-transparent text-foreground text-sm sm:text-base placeholder:text-muted-foreground focus:outline-none"
             />
-          </div>
-          <button
-            type="submit"
-            className="h-9 sm:h-10 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shrink-0"
-          >
-            Найти
-          </button>
-        </div>
-      </form>
-
-      {/* Mobile nav tabs */}
-      <nav className="sm:hidden flex items-center justify-around h-11">
-        {tabs.map((tab) => {
-          const isActive =
-            tab.to === "/"
-              ? location.pathname === "/"
-              : location.pathname.startsWith(tab.to.split("?")[0]);
-
-          return (
-            <Link
-              key={tab.label}
-              to={tab.to}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-0.5 transition-colors ${
-                isActive ? "text-foreground" : "text-muted-foreground"
+            <button
+              type="submit"
+              className={`shrink-0 mr-1.5 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-all ${
+                searchQuery.trim()
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 scale-100"
+                  : "bg-muted text-muted-foreground scale-95"
               }`}
             >
-              <tab.icon className="w-4 h-4" />
-              <span className="text-[10px]">{tab.label}</span>
-              {tab.badge != null && tab.badge > 0 && (
-                <span className="absolute -top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
-                  {tab.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        </form>
+
+        {/* Mobile nav tabs */}
+        <nav className="sm:hidden flex items-center justify-around h-10 pb-1">
+          {tabs.map((tab) => {
+            const isActive =
+              tab.to === "/"
+                ? location.pathname === "/"
+                : location.pathname.startsWith(tab.to.split("?")[0]);
+
+            return (
+              <Link
+                key={tab.label}
+                to={tab.to}
+                className={`relative flex flex-col items-center gap-0.5 px-3 py-0.5 transition-colors ${
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span className="text-[10px]">{tab.label}</span>
+                {tab.badge != null && tab.badge > 0 && (
+                  <span className="absolute -top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
+                    {tab.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
     </div>
   );
 };
