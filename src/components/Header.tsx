@@ -120,13 +120,13 @@ const BottomSearchBar = () => {
         {/* Search bar - ChatGPT/Grok style */}
         <form onSubmit={handleSearch} className="pt-3 pb-2">
           <div
-            className={`relative flex items-center gap-2 rounded-3xl bg-card/80 backdrop-blur-xl shadow-lg transition-all duration-200 ${
+            className={`relative flex items-center gap-2 rounded-3xl bg-card/90 backdrop-blur-xl transition-all duration-200 ${
               isFocused
-                ? "border-2 border-primary shadow-primary/20 shadow-xl"
-                : "border-2 border-border hover:border-muted-foreground/30"
+                ? "border-2 border-primary shadow-[0_0_20px_4px_hsl(var(--primary)/0.25)] scale-[1.02]"
+                : "border-2 border-primary/30 shadow-[0_4px_24px_0_hsl(var(--primary)/0.10)] hover:border-primary/50 hover:shadow-[0_4px_24px_0_hsl(var(--primary)/0.18)]"
             }`}
           >
-            <Search className={`absolute left-4 w-5 h-5 transition-colors ${isFocused ? "text-primary" : "text-muted-foreground"}`} />
+            <Search className={`absolute left-4 w-5 h-5 transition-colors ${isFocused ? "text-primary" : "text-primary/60"}`} />
             <input
               type="text"
               placeholder={placeholders[0]}
@@ -134,7 +134,7 @@ const BottomSearchBar = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              className="w-full pl-12 pr-2 h-12 sm:h-[52px] bg-transparent text-foreground text-sm sm:text-base placeholder:text-muted-foreground focus:outline-none"
+              className="w-full pl-12 pr-2 h-[52px] sm:h-14 bg-transparent text-foreground text-[15px] sm:text-base placeholder:text-muted-foreground/70 focus:outline-none"
             />
             <button
               type="submit"
