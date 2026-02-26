@@ -1,17 +1,41 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { Product } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
 
 const ProductCard = ({ product }: { product: Product }) => {
-  const { addItem } = useCart();
+  const { items, addItem, updateQuantity, removeItem } = useCart();
   const bestStore = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
   const worstPrice = Math.max(...product.stores.map((s) => s.oldPrice || s.price));
+
+  // Find if this product is already in cart (any store)
+  const cartItem = items.find((i) => i.product.id === product.id);
+  const quantity = cartItem?.quantity || 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, bestStore.store, bestStore.price);
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (cartItem) {
+      updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity + 1);
+    }
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (cartItem) {
+      if (cartItem.quantity <= 1) {
+        removeItem(cartItem.product.id, cartItem.store);
+      } else {
+        updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
+      }
+    }
   };
 
   return (
@@ -81,15 +105,33 @@ const ProductCard = ({ product }: { product: Product }) => {
         })}
       </div>
 
-      {/* Add button — filled style */}
+      {/* Add button / quantity control */}
       <div className="px-3 pb-3 pt-1.5">
-        <button
-          onClick={handleAdd}
-          className="w-full h-8 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/90 active:scale-[0.98] transition-all"
-        >
-          <ShoppingCart className="w-3.5 h-3.5" />
-          В корзину
-        </button>
+        {quantity === 0 ? (
+          <button
+            onClick={handleAdd}
+            className="w-full h-8 rounded-lg border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.98] transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Добавить
+          </button>
+        ) : (
+          <div className="flex items-center justify-between h-8">
+            <button
+              onClick={handleDecrement}
+              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-sm font-semibold text-foreground">{quantity}</span>
+            <button
+              onClick={handleIncrement}
+              className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
       </div>
     </Link>
   );
