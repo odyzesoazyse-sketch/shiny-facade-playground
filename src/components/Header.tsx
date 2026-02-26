@@ -126,6 +126,7 @@ const useScrollIdle = (idleMs = 400) => {
 const BottomBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const searchVisible = useScrollIdle(500);
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
