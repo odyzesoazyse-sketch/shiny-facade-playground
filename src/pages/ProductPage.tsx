@@ -80,54 +80,57 @@ const ProductPage = () => {
           </button>
         </div>
 
-        {/* Product header with inline store prices (single block, no duplication) */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-4">
-          <div className="flex gap-3 p-3 sm:p-5">
-            <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 rounded-xl bg-secondary/30 flex items-center justify-center">
-              <div className="absolute top-1.5 left-1.5">
-                <span className="discount-badge text-[10px]">-{product.discountPercent}%</span>
-              </div>
-              <img
-                src={product.image}
-                alt={product.name}
-                className="max-w-[70%] max-h-[70%] object-contain"
-              />
-            </div>
+        {/* Product image — full format like catalog */}
+        <div className="relative rounded-2xl overflow-hidden mb-4">
+          <div className="absolute top-3 left-3 z-10 flex gap-1">
+            <span className="discount-badge">-{product.discountPercent}%</span>
+            <span className="savings-badge">-{product.savingsAmount} ₸</span>
+          </div>
+          <div className="aspect-square bg-secondary/50 overflow-hidden">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
-            <div className="flex-1 min-w-0 flex flex-col justify-between">
-              <div>
-                <h1 className="text-base sm:text-xl font-semibold tracking-tight text-foreground leading-snug line-clamp-3 mb-1.5">
-                  {product.name}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                  {product.brand && (
-                    <span className="inline-flex items-center gap-1">
-                      <Tag className="w-2.5 h-2.5" />
-                      <span className="font-medium text-foreground">{product.brand}</span>
-                    </span>
-                  )}
-                  {product.country && (
-                    <span className="inline-flex items-center gap-1">
-                      <Globe className="w-2.5 h-2.5" />
-                      {product.country}
-                    </span>
-                  )}
-                  {product.weight && <span>{product.weight}</span>}
-                </div>
-              </div>
-
-              <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-lg sm:text-xl font-bold text-foreground">{bestPrice} ₸</span>
-                {worstPrice > bestPrice && (
-                  <span className="price-old text-xs">{worstPrice} ₸</span>
-                )}
-                <span className="savings-badge text-[10px] ml-1">-{product.savingsAmount} ₸</span>
-              </div>
-            </div>
+        {/* Product info */}
+        <div className="bg-card rounded-2xl overflow-hidden mb-4 p-3 sm:p-5">
+          <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground leading-snug mb-2">
+            {product.name}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mb-3">
+            {product.brand && (
+              <span className="inline-flex items-center gap-1">
+                <Tag className="w-2.5 h-2.5" />
+                <span className="font-medium text-foreground">{product.brand}</span>
+              </span>
+            )}
+            {product.country && (
+              <span className="inline-flex items-center gap-1">
+                <Globe className="w-2.5 h-2.5" />
+                {product.country}
+              </span>
+            )}
+            {product.weight && <span>{product.weight}</span>}
           </div>
 
-          {/* Store prices — single list with all details */}
-          <div className="border-t border-border px-3 sm:px-5 py-2.5 space-y-2">
+          {product.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+              {product.description}
+            </p>
+          )}
+
+          <div className="flex items-baseline gap-2 mb-4">
+            <span className="text-xl sm:text-2xl font-bold text-foreground">{bestPrice} ₸</span>
+            {worstPrice > bestPrice && (
+              <span className="price-old text-sm">{worstPrice} ₸</span>
+            )}
+          </div>
+
+          {/* Store prices — no border, just spacing */}
+          <div className="space-y-2 mb-4">
             {product.stores.map((store) => {
               const isBest = store.price === bestPrice;
               return (
@@ -163,17 +166,15 @@ const ProductPage = () => {
           </div>
 
           {/* CTA */}
-          <div className="px-3 sm:px-5 pb-3 pt-1">
-            <button
-              onClick={() => {
-                const best = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
-                addItem(product, best.store, best.price);
-              }}
-              className="w-full h-10 rounded-xl bg-foreground text-background font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-            >
-              🛒 В корзину за {bestPrice} ₸
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              const best = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
+              addItem(product, best.store, best.price);
+            }}
+            className="w-full h-10 rounded-xl bg-foreground text-background font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            🛒 В корзину за {bestPrice} ₸
+          </button>
         </div>
 
         {/* Price History Chart */}

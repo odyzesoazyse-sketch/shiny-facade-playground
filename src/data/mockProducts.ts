@@ -16,6 +16,7 @@ export interface PriceHistoryPoint {
 export interface Product {
   id: string;
   name: string;
+  description?: string;
   image: string;
   weight: string;
   discountPercent: number;
@@ -32,6 +33,7 @@ export const allProducts: Product[] = [
   {
     id: "1",
     name: "Вафли Трубочки TWIX хрустящие с кремовой начинкой со вкусом карамели 22.5г",
+    description: "Хрустящие вафельные трубочки с нежной кремовой начинкой и карамелью. Идеальный перекус к чаю или кофе.",
     image: "https://s3-pic.e-magnum.kz/item/387466.jpg",
     weight: "22.5г",
     discountPercent: 71,
@@ -58,6 +60,7 @@ export const allProducts: Product[] = [
   {
     id: "2",
     name: "Нори снеки Master Kan сушеные с солью 4г",
+    description: "Лёгкие и хрустящие снеки из водорослей нори с морской солью. Полезный перекус с натуральным вкусом.",
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
     weight: "4г",
     discountPercent: 70,
@@ -81,6 +84,7 @@ export const allProducts: Product[] = [
   {
     id: "3",
     name: "Крабовые палочки Vici Снежный краб охлажденные 250г",
+    description: "Охлаждённые крабовые палочки из сурими. Подходят для салатов, закусок и горячих блюд.",
     image: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=400&h=400&fit=crop",
     weight: "250г",
     discountPercent: 66,
@@ -105,6 +109,7 @@ export const allProducts: Product[] = [
   {
     id: "4",
     name: "Огурцы Globus Дунайский лес маринованные с ягодами можжевельника 500мл",
+    description: "Маринованные огурцы с можжевеловыми ягодами — пикантный вкус для любых блюд и закусок.",
     image: "https://images.unsplash.com/photo-1465014925804-7b9ede58d0d7?w=400&h=400&fit=crop",
     weight: "500мл",
     discountPercent: 62,
@@ -128,6 +133,7 @@ export const allProducts: Product[] = [
   {
     id: "5",
     name: "Токпокки быстрого приготовления Hokang Wonderpokki Hot Spicy 120г",
+    description: "Острые корейские рисовые палочки токпокки — быстрое приготовление за 5 минут. Насыщенный пряный вкус.",
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=400&fit=crop",
     weight: "120г",
     discountPercent: 70,
@@ -150,6 +156,7 @@ export const allProducts: Product[] = [
   {
     id: "6",
     name: "Молоко Lactel ультрапастеризованное 3.2% 1л",
+    description: "Французское ультрапастеризованное молоко жирностью 3.2%. Длительный срок хранения без консервантов.",
     image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
     weight: "1л",
     discountPercent: 45,
@@ -172,6 +179,7 @@ export const allProducts: Product[] = [
   {
     id: "7",
     name: "Чай Ahmad Tea Earl Grey чёрный 100 пакетиков",
+    description: "Классический чёрный чай с бергамотом. 100 пакетиков — идеальный выбор для дома и офиса.",
     image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop",
     weight: "200г",
     discountPercent: 38,
@@ -193,6 +201,7 @@ export const allProducts: Product[] = [
   {
     id: "8",
     name: "Масло подсолнечное рафинированное Олейна 1л",
+    description: "Рафинированное подсолнечное масло для жарки и заправки. Без запаха и осадка.",
     image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop",
     weight: "1л",
     discountPercent: 25,
@@ -215,6 +224,7 @@ export const allProducts: Product[] = [
   {
     id: "9",
     name: "Сахар белый рафинированный 1кг",
+    description: "Белый рафинированный сахар высшей категории. Универсален для выпечки, напитков и консервации.",
     image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=400&fit=crop",
     weight: "1кг",
     discountPercent: 15,
@@ -237,6 +247,7 @@ export const allProducts: Product[] = [
   {
     id: "10",
     name: "Ополаскиватель Lacalut Sensitive для полости рта с мицеллярной водой 500мл",
+    description: "Ополаскиватель с мицеллярной водой для чувствительных зубов и дёсен. Мягкое очищение без раздражения.",
     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
     weight: "500мл",
     discountPercent: 82,
