@@ -69,6 +69,7 @@ const ProductPage = () => {
       else updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
     }
   };
+  const handleShare = async () => {
     const url = window.location.href;
     const text = `${product.name} — от ${bestPrice} ₸ на minprice.kz`;
     if (navigator.share) {
