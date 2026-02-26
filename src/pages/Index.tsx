@@ -40,38 +40,14 @@ const Index = () => {
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        {/* Hero search + описание */}
-        <section className="mb-6 rounded-xl bg-secondary/50 border border-border px-4 py-5 sm:px-6 sm:py-6">
+        {/* Описание сайта */}
+        <section className="mb-6 rounded-xl bg-secondary/50 border border-border px-4 py-4 sm:px-5 sm:py-5">
           <h1 className="text-lg sm:text-xl font-bold text-foreground mb-1">
             minprice.kz — сравнение цен на продукты
           </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
             Находим самую низкую цену среди популярных магазинов Казахстана
           </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (heroSearch.trim()) navigate(`/search?q=${encodeURIComponent(heroSearch.trim())}`);
-            }}
-            className="flex gap-2 mb-4"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Найти товары среди 5 магазинов..."
-                value={heroSearch}
-                onChange={(e) => setHeroSearch(e.target.value)}
-                className="w-full pl-10 pr-3 h-10 sm:h-11 rounded-lg bg-background border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all"
-              />
-            </div>
-            <button
-              type="submit"
-              className="h-10 sm:h-11 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Найти
-            </button>
-          </form>
           <div className="flex flex-wrap gap-2">
             {storeNames.map((store) => (
               <span
