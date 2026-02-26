@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Product } from "@/data/mockProducts";
 
-
 export interface CartItem {
   product: Product;
   store: string;
@@ -14,6 +13,7 @@ interface CartContextType {
   addItem: (product: Product, store: string, price: number) => void;
   removeItem: (productId: string, store: string) => void;
   updateQuantity: (productId: string, store: string, quantity: number) => void;
+  switchStore: (productId: string, newStore: string, newPrice: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -59,7 +59,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) =>
       prev.filter((i) => !(i.product.id === productId && i.store === store))
     );
-    
   };
 
   const updateQuantity = (productId: string, store: string, quantity: number) => {
@@ -76,6 +75,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  // Atomic store switch — no setTimeout needed
+  const switchStore = (productId: string, newStore: string, newPrice: number) => {
+    setItems((prev) => {
+      const existing = prev.find((i) => i.product.id === productId);
+      if (!existing) return prev;
+      // Remove old entry, add new with same quantity
+      return prev.map((i) =>
+        i.product.id === productId
+          ? { ...i, store: newStore, price: newPrice }
+          : i
+      );
+    });
+  };
+
   const clearCart = () => {
     setItems([]);
   };
@@ -85,7 +98,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{ items, addItem, removeItem, updateQuantity, switchStore, clearCart, totalItems, totalPrice }}
     >
       {children}
     </CartContext.Provider>

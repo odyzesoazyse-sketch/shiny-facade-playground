@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import logo from "@/assets/logo.png";
 
-const cities = ["Алматы", "Астана", "Шымкент", "Караганда", "Актобе"];
+const cities = ["Алматы", "Астана"];
 
 const Header = () => {
   const [selectedCity, setSelectedCity] = useState("Алматы");
