@@ -1,8 +1,10 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode, Moon, Sun } from "lucide-react";
+import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode, Moon, Sun, LayoutGrid, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { allProducts, categories } from "@/data/mockProducts";
 import logo from "@/assets/logo.png";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const cities = ["Алматы", "Астана"];
 
@@ -123,6 +125,76 @@ const useScrollIdle = (idleMs = 400) => {
   return visible;
 };
 
+const categoryIcons: Record<string, string> = {
+  "Все": "🛒",
+  "Сладости": "🍫",
+  "Снеки": "🍿",
+  "Морепродукты": "🦐",
+  "Консервы": "🥫",
+  "Молочные": "🥛",
+  "Напитки": "🥤",
+  "Бакалея": "🌾",
+  "Гигиена": "🧴",
+  "Полуфабрикаты": "🥟",
+};
+
+const CatalogSheet = () => {
+  const navigate = useNavigate();
+  const categoriesWithCount = categories.filter(c => c !== "Все").map(cat => ({
+    name: cat,
+    icon: categoryIcons[cat] || "📦",
+    count: allProducts.filter(p => p.category === cat).length,
+  }));
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <button className="relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors text-muted-foreground">
+          <LayoutGrid className="w-5 h-5" />
+          <span className="text-[11px] font-medium">Каталог</span>
+        </button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh]">
+        <SheetHeader className="pb-2">
+          <SheetTitle className="text-base">Каталог товаров</SheetTitle>
+        </SheetHeader>
+        <div className="overflow-y-auto pb-6">
+          <button
+            onClick={() => navigate("/search")}
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-accent transition-colors mb-1"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🛒</span>
+              <span className="text-sm font-medium text-foreground">Все товары</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{allProducts.length}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+          <div className="h-px bg-border mb-1" />
+          {categoriesWithCount.map((cat) => (
+            <button
+              key={cat.name}
+              onClick={() => navigate(`/search?category=${encodeURIComponent(cat.name)}`)}
+              className="w-full flex items-center justify-between px-3 py-3 rounded-xl hover:bg-accent transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{cat.icon}</span>
+                <span className="text-sm font-medium text-foreground">{cat.name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{cat.count}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
 const BottomBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -147,7 +219,7 @@ const BottomBar = () => {
 
   return (
     <>
-      {/* Search bar - hides on scroll, reappears on stop */}
+      {/* Search bar */}
       <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
         searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       }`}>
@@ -185,15 +257,29 @@ const BottomBar = () => {
         </div>
       </div>
 
-      {/* Mobile nav - fixed to absolute bottom */}
+      {/* Mobile nav */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-around h-14">
-          {tabs.map((tab) => {
-            const isActive =
-              tab.to === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(tab.to.split("?")[0]);
+          {tabs.slice(0, 1).map((tab) => {
+            const isActive = location.pathname === "/";
+            return (
+              <Link
+                key={tab.label}
+                to={tab.to}
+                className={`relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors ${
+                  isActive ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                <span className="text-[11px] font-medium">{tab.label}</span>
+              </Link>
+            );
+          })}
 
+          <CatalogSheet />
+
+          {tabs.slice(1).map((tab) => {
+            const isActive = location.pathname.startsWith(tab.to.split("?")[0]);
             return (
               <Link
                 key={tab.label}
