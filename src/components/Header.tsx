@@ -126,7 +126,7 @@ const BottomSearchBar = () => {
 
       <div className="relative">
         {/* Search bar - ChatGPT/Grok style */}
-        <form onSubmit={handleSearch} className="px-3 sm:px-4 pt-3 pb-2 max-w-2xl mx-auto">
+        <form onSubmit={handleSearch} className="px-3 sm:px-4 pt-3 pb-2 max-w-3xl mx-auto">
           <div
             className={`relative flex items-center gap-2 rounded-3xl border-2 bg-card shadow-lg transition-all duration-200 ${
               isFocused
