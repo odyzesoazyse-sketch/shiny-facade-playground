@@ -56,17 +56,12 @@ const Header = () => {
                 )}
               </div>
 
-              <Link
-                to="/cart"
-                className="relative flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              <button
+                className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => {/* scan barcode */}}
               >
-                <ShoppingCart className="w-4 h-4" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+                <ScanBarcode className="w-4.5 h-4.5" />
+              </button>
             </div>
           </div>
 
