@@ -7,24 +7,15 @@ import logo from "@/assets/logo.png";
 const cities = ["Алматы", "Астана", "Шымкент", "Караганда", "Актобе"];
 
 const Header = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState("Алматы");
   const [cityOpen, setCityOpen] = useState(false);
-  const navigate = useNavigate();
   const { totalItems } = useCart();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
 
   return (
     <>
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-3 sm:px-6">
-          <div className="flex items-center gap-3 sm:gap-6 h-12 sm:h-14">
+          <div className="flex items-center justify-between h-12 sm:h-14">
             {/* Logo */}
             <Link to="/" className="shrink-0 flex items-center gap-1.5">
               <img src={logo} alt="minprice.kz" className="w-9 h-9 sm:w-11 sm:h-11 object-contain" />
@@ -33,30 +24,10 @@ const Header = () => {
               </span>
             </Link>
 
-            {/* Search with button */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-lg flex gap-1.5">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Найти товары..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 sm:pl-9 pr-3 h-8 sm:h-9 rounded-lg bg-secondary text-foreground text-xs sm:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 transition-all"
-                />
-              </div>
-              <button
-                type="submit"
-                className="hidden sm:flex h-9 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium items-center hover:bg-primary/90 transition-colors"
-              >
-                Найти
-              </button>
-            </form>
-
             {/* Right side */}
             <div className="flex items-center gap-3">
               {/* City dropdown */}
-              <div className="relative hidden sm:block">
+              <div className="relative">
                 <button
                   onClick={() => setCityOpen(!cityOpen)}
                   className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -87,7 +58,7 @@ const Header = () => {
 
               <Link
                 to="/cart"
-                className="relative hidden sm:flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                className="relative flex items-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ShoppingCart className="w-4 h-4" />
                 {totalItems > 0 && (
@@ -107,7 +78,7 @@ const Header = () => {
         </div>
       </header>
 
-      <MobileBottomNav />
+      <BottomSearchBar />
     </>
   );
 };
@@ -121,20 +92,58 @@ const NavLink = ({ to, label }: { to: string; label: string }) => (
   </Link>
 );
 
-const MobileBottomNav = () => {
+const placeholders = [
+  "Найти самые дешёвые товары...",
+  "Сравнить цены на продукты...",
+  "Найти скидки среди 5 магазинов...",
+];
+
+const BottomSearchBar = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  // Mobile nav tabs (without search - it's now the bar itself)
   const tabs = [
     { to: "/", icon: Home, label: "Главная" },
-    { to: "/search", icon: Search, label: "Поиск" },
     { to: "/search?sort=discount", icon: Tag, label: "Скидки" },
     { to: "/cart", icon: ShoppingCart, label: "Корзина", badge: totalItems },
   ];
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-14">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
+      {/* Search bar */}
+      <form onSubmit={handleSearch} className="px-3 pt-2 pb-1.5 sm:pb-2 max-w-2xl mx-auto">
+        <div className="relative flex gap-1.5">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={placeholders[0]}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-3 h-9 sm:h-10 rounded-lg bg-secondary text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            className="h-9 sm:h-10 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shrink-0"
+          >
+            Найти
+          </button>
+        </div>
+      </form>
+
+      {/* Mobile nav tabs */}
+      <nav className="sm:hidden flex items-center justify-around h-11">
         {tabs.map((tab) => {
           const isActive =
             tab.to === "/"
@@ -145,22 +154,22 @@ const MobileBottomNav = () => {
             <Link
               key={tab.label}
               to={tab.to}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 px-3 py-0.5 transition-colors ${
                 isActive ? "text-foreground" : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="w-5 h-5" />
+              <tab.icon className="w-4 h-4" />
               <span className="text-[10px]">{tab.label}</span>
               {tab.badge != null && tab.badge > 0 && (
-                <span className="absolute -top-0.5 right-0.5 w-4 h-4 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
+                <span className="absolute -top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
                   {tab.badge}
                 </span>
               )}
             </Link>
           );
         })}
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 
