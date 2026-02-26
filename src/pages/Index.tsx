@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { TrendingDown, TrendingUp, Flame } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
@@ -20,8 +20,13 @@ const categoryEmojis: Record<string, string> = {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"deals" | "drops">("deals");
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const hotDeals = allProducts.filter((p) => p.discountPercent >= 50);
+  const topDeals = allProducts
+    .slice()
+    .sort((a, b) => b.discountPercent - a.discountPercent)
+    .slice(0, 10);
 
   const priceUps = allProducts.filter((p) =>
     p.priceHistory &&
@@ -37,11 +42,49 @@ const Index = () => {
     return allProducts.reduce((sum, p) => sum + p.savingsAmount, 0);
   }, []);
 
+  const scroll = (dir: "left" | "right") => {
+    if (sliderRef.current) {
+      const amount = sliderRef.current.clientWidth * 0.7;
+      sliderRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        {/* 🔥 Выгодные предложения — horizontal slider */}
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
+              <Flame className="w-5 h-5 text-destructive" />
+              Выгодные предложения
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{topDeals.length} товаров</span>
+              <div className="hidden sm:flex gap-1">
+                <button onClick={() => scroll("left")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+                </button>
+                <button onClick={() => scroll("right")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            ref={sliderRef}
+            className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+          >
+            {topDeals.map((product) => (
+              <div key={product.id} className="shrink-0 w-[160px] sm:w-[200px]">
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Savings banner */}
         <section className="mb-4 sm:mb-5 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex items-center gap-3">
           <img src={mascot} alt="minprice.kz маскот" className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0" />
@@ -55,7 +98,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Category chips with emojis */}
+        {/* Category chips */}
         <section className="mb-5 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
           <div className="flex gap-1.5 sm:flex-wrap">
             {categories.filter((c) => c !== "Все").map((cat) => (
@@ -71,7 +114,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Price changes tabs — improved contrast */}
+        {/* Price changes tabs */}
         <section className="mb-8">
           <div className="flex items-center gap-1 mb-3 p-0.5 bg-muted rounded-lg w-fit">
             <button
