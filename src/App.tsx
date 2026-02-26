@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import Index from "./pages/Index";
 import ProductPage from "./pages/ProductPage";
 import SearchPage from "./pages/SearchPage";
+import CatalogPage from "./pages/CatalogPage";
 import CartPage from "./pages/CartPage";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="*" element={<NotFound />} />
