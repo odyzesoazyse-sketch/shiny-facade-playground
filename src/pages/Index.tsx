@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
+import CategorySidebar from "@/components/CategorySidebar";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, storeNames, categories } from "@/data/mockProducts";
 import StoreLogo from "@/components/StoreLogo";
@@ -18,7 +19,7 @@ const Index = () => {
 
   const priceDrops = allProducts
     .filter((p) => p.discountPercent >= 50)
-    .filter((p) => !topDeals.find((d) => d.id === p.id)); // exclude already shown in slider
+    .filter((p) => !topDeals.find((d) => d.id === p.id));
 
   const priceUps = allProducts.filter((p) =>
     p.priceHistory &&
@@ -30,7 +31,6 @@ const Index = () => {
     })()
   );
 
-  // Filter catalog by category
   const catalogProducts = activeCategory === "Все"
     ? allProducts
     : allProducts.filter((p) => p.category === activeCategory);
@@ -46,9 +46,10 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-40 sm:pb-24">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      {/* 🔥 Top deals slider — full width, above sidebar layout */}
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 mb-5">
         {/* Compact hero */}
-        <section className="mb-5 flex items-center gap-3 rounded-xl bg-secondary/50 border border-border px-4 py-3">
+        <div className="mb-5 flex items-center gap-3 rounded-xl bg-secondary/50 border border-border px-4 py-3">
           <div className="flex-1 min-w-0">
             <h1 className="text-sm sm:text-base font-bold text-foreground">
               Сравнение цен на продукты
@@ -69,120 +70,124 @@ const Index = () => {
               </span>
             )}
           </div>
-        </section>
+        </div>
 
-        {/* Categories */}
-        <section className="mb-5 -mx-3 px-3 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1.5 w-max">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                  activeCategory === cat
-                    ? "bg-foreground text-background"
-                    : "bg-secondary text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {cat}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
+            <Flame className="w-5 h-5 text-destructive" />
+            Лучшие скидки
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">{topDeals.length} товаров</span>
+            <div className="hidden sm:flex gap-1">
+              <button onClick={() => scroll("left")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
               </button>
-            ))}
-          </div>
-        </section>
-
-        {/* 🔥 Top deals slider */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
-              <Flame className="w-5 h-5 text-destructive" />
-              Лучшие скидки
-            </h2>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{topDeals.length} товаров</span>
-              <div className="hidden sm:flex gap-1">
-                <button onClick={() => scroll("left")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
-                  <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button onClick={() => scroll("right")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </div>
+              <button onClick={() => scroll("right")} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors">
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
-          <div
-            ref={sliderRef}
-            className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
-          >
-            {topDeals.map((product) => (
-              <div key={product.id} className="shrink-0 w-[160px] sm:w-[200px]">
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
+        <div
+          ref={sliderRef}
+          className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+        >
+          {topDeals.map((product) => (
+            <div key={product.id} className="shrink-0 w-[160px] sm:w-[200px]">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </section>
 
-        {/* Price changes tabs */}
-        <section className="mb-8">
-          <div className="flex items-center gap-1 mb-3 p-0.5 bg-muted rounded-lg w-fit">
-            <button
-              onClick={() => setActiveTab("deals")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
-                activeTab === "deals"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <TrendingDown className="w-3.5 h-3.5" />
-              Упали в цене
-            </button>
-            <button
-              onClick={() => setActiveTab("drops")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
-                activeTab === "drops"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              Выросли в цене
-            </button>
-          </div>
+      {/* Main layout: sidebar + content */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 flex gap-6 pb-6">
+        <CategorySidebar activeCategory={activeCategory} onCategorySelect={setActiveCategory} />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {(activeTab === "deals" ? priceDrops : priceUps).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-            {activeTab === "deals" && priceDrops.length === 0 && (
-              <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
-                Все лучшие скидки показаны выше
-              </p>
-            )}
-            {activeTab === "drops" && priceUps.length === 0 && (
-              <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
-                Нет товаров с повышением цен
-              </p>
-            )}
-          </div>
-        </section>
+        <main className="flex-1 min-w-0">
+          {/* Mobile categories (hidden on lg) */}
+          <section className="mb-5 -mx-3 px-3 overflow-x-auto scrollbar-hide lg:hidden">
+            <div className="flex gap-1.5 w-max">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                    activeCategory === cat
+                      ? "bg-foreground text-background"
+                      : "bg-secondary text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </section>
 
-        {/* Full catalog */}
-        <section>
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
-              {activeCategory === "Все" ? "Весь каталог" : activeCategory}
-            </h2>
-            <span className="text-xs text-muted-foreground">
-              {catalogProducts.length} товаров
-            </span>
-          </div>
+          {/* Price changes tabs */}
+          <section className="mb-8">
+            <div className="flex items-center gap-1 mb-3 p-0.5 bg-muted rounded-lg w-fit">
+              <button
+                onClick={() => setActiveTab("deals")}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
+                  activeTab === "deals"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <TrendingDown className="w-3.5 h-3.5" />
+                Упали в цене
+              </button>
+              <button
+                onClick={() => setActiveTab("drops")}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
+                  activeTab === "drops"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                Выросли в цене
+              </button>
+            </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {catalogProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      </main>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+              {(activeTab === "deals" ? priceDrops : priceUps).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+              {activeTab === "deals" && priceDrops.length === 0 && (
+                <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
+                  Все лучшие скидки показаны выше
+                </p>
+              )}
+              {activeTab === "drops" && priceUps.length === 0 && (
+                <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
+                  Нет товаров с повышением цен
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Full catalog */}
+          <section>
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+                {activeCategory === "Все" ? "Весь каталог" : activeCategory}
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {catalogProducts.length} товаров
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+              {catalogProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
 
       <Footer />
     </div>
@@ -191,7 +196,7 @@ const Index = () => {
 
 const Footer = () => (
   <footer className="border-t border-border mt-12 py-8">
-    <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="text-sm font-semibold text-foreground">minprice.kz</span>
@@ -206,7 +211,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-border text-center text-[11px] text-muted-foreground">
-        © 2025 minprice.kz — Все цены актуальны на момент обновления
+        © 2026 minprice.kz — Все цены актуальны на момент обновления
       </div>
     </div>
   </footer>
