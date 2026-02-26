@@ -126,6 +126,12 @@ const ProductPage = () => {
             </div>
           </div>
 
+          {product.description && (
+            <p className="text-xs text-muted-foreground leading-relaxed px-3 sm:px-5 pb-3">
+              {product.description}
+            </p>
+          )}
+
           {/* Store prices — no border, just spacing */}
           <div className="space-y-2 mb-4">
             {product.stores.map((store) => {
