@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
-import { Plus, Minus, ShoppingCart } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { Product } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
 import StoreLogo from "@/components/StoreLogo";
 import { useState } from "react";
+
+const MAX_STORES_DISPLAY = 3; // ensure consistent height
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { items, addItem, updateQuantity, removeItem } = useCart();
@@ -42,10 +44,14 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
   };
 
+  // Pad stores to consistent height
+  const displayStores = product.stores.slice(0, MAX_STORES_DISPLAY);
+  const emptySlots = MAX_STORES_DISPLAY - displayStores.length;
+
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block rounded-xl transition-all duration-200 overflow-hidden"
+      className="group flex flex-col rounded-xl transition-all duration-200 overflow-hidden h-full"
     >
       {/* Image */}
       <div className="relative p-3 pb-0">
@@ -77,36 +83,42 @@ const ProductCard = ({ product }: { product: Product }) => {
         <p className="text-[11px] text-muted-foreground mt-0.5">{product.weight}</p>
       </div>
 
-      {/* Store prices */}
-      <div className="px-3 py-1.5 space-y-1 border-t border-border">
-        {product.stores.map((store) => {
-          const isBest = store.price === bestStore.price;
-          return (
-            <div key={store.store} className="flex items-center justify-between text-[11px]">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <StoreLogo store={store.store} size="sm" />
-                <span className="text-muted-foreground truncate">{store.store}</span>
-                {isBest && product.stores.length > 1 && (
-                  <span className="best-price-label">min</span>
-                )}
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                {store.oldPrice && (
-                  <span className="line-through text-muted-foreground/60">
-                    {store.oldPrice}
+      {/* Store prices - fixed height */}
+      <div className="px-3 py-1.5 border-t border-border flex-1">
+        <div className="space-y-1">
+          {displayStores.map((store) => {
+            const isBest = store.price === bestStore.price;
+            return (
+              <div key={store.store} className="flex items-center justify-between text-[11px] h-[18px]">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <StoreLogo store={store.store} size="sm" />
+                  <span className="text-muted-foreground truncate">{store.store}</span>
+                  {isBest && product.stores.length > 1 && (
+                    <span className="best-price-label">min</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {store.oldPrice && (
+                    <span className="line-through text-muted-foreground/60">
+                      {store.oldPrice}
+                    </span>
+                  )}
+                  <span className={`font-medium ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
+                    {store.price} ₸
                   </span>
-                )}
-                <span className={`font-medium ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
-                  {store.price} ₸
-                </span>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+          {/* Empty slots to maintain consistent height */}
+          {Array.from({ length: emptySlots }).map((_, i) => (
+            <div key={`empty-${i}`} className="h-[18px]" />
+          ))}
+        </div>
       </div>
 
-      {/* Add button / quantity control */}
-      <div className="px-3 pb-3 pt-1.5">
+      {/* Add button / quantity control - always at bottom */}
+      <div className="px-3 pb-3 pt-1.5 mt-auto">
         {quantity === 0 ? (
           <button
             onClick={handleAdd}

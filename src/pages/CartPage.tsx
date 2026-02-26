@@ -1,19 +1,18 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag, Zap, Store, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Minus, Plus, Trash2, ArrowLeft, Zap, ChevronDown, ChevronUp, Check } from "lucide-react";
 import Header from "@/components/Header";
 import { useCart } from "@/context/CartContext";
 import { allProducts, Product } from "@/data/mockProducts";
 import mascot from "@/assets/logo.png";
 
-type Strategy = "optimal" | string; // "optimal" or store name
+type Strategy = "optimal" | string;
 
 const CartPage = () => {
-  const { items, removeItem, updateQuantity, clearCart, totalPrice, totalItems, addItem } = useCart();
+  const { items, removeItem, updateQuantity, switchStore, clearCart, totalPrice, totalItems } = useCart();
   const [strategy, setStrategy] = useState<Strategy>("optimal");
   const [expandedComparison, setExpandedComparison] = useState(true);
 
-  // Get unique products in cart (by product id)
   const uniqueProducts = useMemo(() => {
     const map = new Map<string, { product: Product; quantity: number; currentStore: string; currentPrice: number }>();
     items.forEach((item) => {
@@ -29,7 +28,6 @@ const CartPage = () => {
     return Array.from(map.values());
   }, [items]);
 
-  // All stores that carry at least one cart product
   const availableStores = useMemo(() => {
     const storeSet = new Set<string>();
     uniqueProducts.forEach(({ product }) => {
@@ -38,7 +36,6 @@ const CartPage = () => {
     return Array.from(storeSet);
   }, [uniqueProducts]);
 
-  // Calculate total for a given strategy
   const calcTotal = (strat: Strategy) => {
     return uniqueProducts.reduce((sum, { product, quantity }) => {
       if (strat === "optimal") {
@@ -46,28 +43,21 @@ const CartPage = () => {
         return sum + best * quantity;
       }
       const storePrice = product.stores.find((s) => s.store === strat);
-      if (!storePrice) return sum + 999999; // not available
+      if (!storePrice) return sum + 999999;
       return sum + storePrice.price * quantity;
     }, 0);
   };
 
-  // Check if store has all products
   const storeHasAll = (storeName: string) =>
     uniqueProducts.every(({ product }) => product.stores.some((s) => s.store === storeName));
 
   const optimalTotal = calcTotal("optimal");
 
-  // Apply a strategy: switch all items to the optimal/store choice
+  // Atomic strategy apply using switchStore
   const applyStrategy = (strat: Strategy) => {
     setStrategy(strat);
     uniqueProducts.forEach(({ product, quantity }) => {
-      // Remove existing items for this product
-      items
-        .filter((i) => i.product.id === product.id)
-        .forEach((i) => removeItem(i.product.id, i.store));
-
       let targetStore: { store: string; price: number } | undefined;
-
       if (strat === "optimal") {
         const best = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
         targetStore = { store: best.store, price: best.price };
@@ -75,21 +65,12 @@ const CartPage = () => {
         const sp = product.stores.find((s) => s.store === strat);
         if (sp) targetStore = { store: sp.store, price: sp.price };
       }
-
       if (targetStore) {
-        // Add with correct quantity - we need to add one then update
-        // Using setTimeout to avoid state batching issues
-        setTimeout(() => {
-          addItem(product, targetStore!.store, targetStore!.price);
-          if (quantity > 1) {
-            updateQuantity(product.id, targetStore!.store, quantity);
-          }
-        }, 0);
+        switchStore(product.id, targetStore.store, targetStore.price);
       }
     });
   };
 
-  // Group current items by store
   const groupedByStore = items.reduce<Record<string, typeof items>>(
     (acc, item) => {
       if (!acc[item.store]) acc[item.store] = [];
@@ -101,18 +82,16 @@ const CartPage = () => {
 
   const storeEntries = Object.entries(groupedByStore);
 
-  // Per-product store comparison data
   const productComparison = useMemo(() => {
     return uniqueProducts.map(({ product, quantity, currentStore, currentPrice }) => {
       const bestPrice = Math.min(...product.stores.map((s) => s.price));
-      const currentIsOptimal = currentPrice === bestPrice;
       return {
         product,
         quantity,
         currentStore,
         currentPrice,
         bestPrice,
-        currentIsOptimal,
+        currentIsOptimal: currentPrice === bestPrice,
         stores: product.stores.map((s) => ({
           ...s,
           isBest: s.price === bestPrice,
@@ -126,7 +105,7 @@ const CartPage = () => {
   const totalSavingsIfOptimal = totalPrice - optimalTotal;
 
   return (
-    <div className="min-h-screen bg-background pb-24 sm:pb-0">
+    <div className="min-h-screen bg-background pb-40 sm:pb-8">
       <Header />
 
       <main className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
@@ -145,7 +124,7 @@ const CartPage = () => {
           {items.length > 0 && (
             <button
               onClick={clearCart}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
             >
               Очистить
             </button>
@@ -166,7 +145,7 @@ const CartPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* ===== Smart Comparison Panel ===== */}
+            {/* Smart Comparison Panel */}
             <div className="border border-border rounded-xl overflow-hidden bg-card">
               <button
                 onClick={() => setExpandedComparison(!expandedComparison)}
@@ -177,7 +156,7 @@ const CartPage = () => {
                   <span className="text-sm font-semibold text-foreground">Сравнение магазинов</span>
                   {totalSavingsIfOptimal > 0 && (
                     <span className="savings-badge text-[10px]">
-                      можно сэкономить {totalSavingsIfOptimal.toLocaleString()} ₸
+                      −{totalSavingsIfOptimal.toLocaleString()} ₸
                     </span>
                   )}
                 </div>
@@ -190,9 +169,7 @@ const CartPage = () => {
 
               {expandedComparison && (
                 <div className="border-t border-border">
-                  {/* Strategy selector */}
                   <div className="px-3 sm:px-4 py-3 space-y-2">
-                    {/* Optimal mix */}
                     <StrategyOption
                       label="Оптимальный микс"
                       description="Лучшая цена за каждый товар"
@@ -203,7 +180,6 @@ const CartPage = () => {
                       icon={<Zap className="w-3.5 h-3.5" />}
                     />
 
-                    {/* Single store options */}
                     {availableStores.map((storeName) => {
                       const hasAll = storeHasAll(storeName);
                       const storeTotal = hasAll ? calcTotal(storeName) : null;
@@ -232,45 +208,31 @@ const CartPage = () => {
                     })}
                   </div>
 
-                  {/* Per-product comparison table */}
+                  {/* Per-product comparison */}
                   <div className="border-t border-border">
                     <div className="px-3 sm:px-4 py-2">
                       <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                         Цены по товарам
                       </p>
                     </div>
-                    {productComparison.map(({ product, quantity, currentStore, currentPrice, bestPrice, stores }) => (
+                    {productComparison.map(({ product, quantity, currentStore, stores }) => (
                       <div key={product.id} className="px-3 sm:px-4 py-2.5 border-t border-border">
                         <div className="flex items-start gap-2.5 mb-2">
-                          <div className="w-8 h-8 rounded bg-secondary/50 flex items-center justify-center shrink-0">
-                            <img
-                              src={product.image}
-                              alt=""
-                              className="max-w-[80%] max-h-[80%] object-contain"
-                            />
+                          <div className="w-8 h-8 rounded bg-secondary/50 flex items-center justify-center shrink-0 overflow-hidden">
+                            <img src={product.image} alt="" className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-[12px] text-foreground line-clamp-1 leading-snug">
-                              {product.name}
-                            </p>
+                            <p className="text-[12px] text-foreground line-clamp-1 leading-snug">{product.name}</p>
                             <p className="text-[10px] text-muted-foreground">{product.weight} × {quantity}</p>
                           </div>
                         </div>
-                        {/* Store price chips */}
                         <div className="flex flex-wrap gap-1 pl-[2.625rem]">
                           {stores.map((s) => (
                             <button
                               key={s.store}
                               onClick={() => {
-                                // Switch this product to this store
-                                removeItem(product.id, currentStore);
-                                setTimeout(() => {
-                                  addItem(product, s.store, s.price);
-                                  if (quantity > 1) {
-                                    updateQuantity(product.id, s.store, quantity);
-                                  }
-                                }, 0);
-                                setStrategy("optimal"); // reset strategy label
+                                switchStore(product.id, s.store, s.price);
+                                setStrategy("optimal");
                               }}
                               className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-colors ${
                                 s.isCurrent
@@ -299,25 +261,16 @@ const CartPage = () => {
               )}
             </div>
 
-            {/* ===== Cart Items grouped by store ===== */}
+            {/* Cart Items grouped by store */}
             {storeEntries.map(([store, storeItems]) => {
-              const storeTotal = storeItems.reduce(
-                (sum, i) => sum + i.price * i.quantity,
-                0
-              );
+              const storeTotal = storeItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
               const storeColor = storeItems[0]?.product.stores.find((s) => s.store === store)?.color || "#888";
 
               return (
-                <div
-                  key={store}
-                  className="border border-border rounded-xl overflow-hidden"
-                >
+                <div key={store} className="border border-border rounded-xl overflow-hidden">
                   <div className="px-3 sm:px-4 py-2.5 bg-secondary/50 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: storeColor }}
-                      />
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: storeColor }} />
                       <span className="text-sm font-medium text-foreground">{store}</span>
                       <span className="text-[11px] text-muted-foreground">
                         {storeItems.length} {storeItems.length === 1 ? "товар" : "товаров"}
@@ -331,18 +284,12 @@ const CartPage = () => {
                   {storeItems.map((item, idx) => (
                     <div
                       key={`${item.product.id}-${item.store}`}
-                      className={`px-3 sm:px-4 py-3 ${
-                        idx < storeItems.length - 1 ? "border-b border-border" : ""
-                      }`}
+                      className={`px-3 sm:px-4 py-3 ${idx < storeItems.length - 1 ? "border-b border-border" : ""}`}
                     >
                       <div className="flex items-start gap-3">
                         <Link to={`/product/${item.product.id}`} className="shrink-0">
-                          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-secondary/50 flex items-center justify-center">
-                            <img
-                              src={item.product.image}
-                              alt={item.product.name}
-                              className="max-w-[80%] max-h-[80%] object-contain"
-                            />
+                          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-secondary/50 overflow-hidden">
+                            <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                           </div>
                         </Link>
 
@@ -353,37 +300,29 @@ const CartPage = () => {
                           >
                             {item.product.name}
                           </Link>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            {item.product.weight}
-                          </p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{item.product.weight}</p>
                         </div>
 
                         <button
                           onClick={() => removeItem(item.product.id, item.store)}
-                          className="text-muted-foreground hover:text-foreground transition-colors shrink-0 p-1"
+                          className="text-muted-foreground hover:text-destructive transition-colors shrink-0 p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
                       <div className="flex items-center justify-between mt-2 pl-[3.5rem] sm:pl-[4.25rem]">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center h-7 rounded-lg bg-secondary overflow-hidden">
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.store, item.quantity - 1)
-                            }
-                            className="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => updateQuantity(item.product.id, item.store, item.quantity - 1)}
+                            className="h-full px-2.5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="w-6 text-center text-sm font-medium text-foreground">
-                            {item.quantity}
-                          </span>
+                          <span className="w-7 text-center text-xs font-semibold text-foreground">{item.quantity}</span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.store, item.quantity + 1)
-                            }
-                            className="w-7 h-7 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => updateQuantity(item.product.id, item.store, item.quantity + 1)}
+                            className="h-full px-2.5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -399,24 +338,22 @@ const CartPage = () => {
               );
             })}
 
-            {/* ===== Total ===== */}
+            {/* Total */}
             <div className="border border-border rounded-xl px-3 sm:px-4 py-3 bg-card">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-muted-foreground">
                   {totalItems} {totalItems === 1 ? "товар" : totalItems < 5 ? "товара" : "товаров"} · {storeEntries.length} {storeEntries.length === 1 ? "магазин" : "магазина"}
                 </span>
-                <div className="text-right">
-                  <span className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
-                    {totalPrice.toLocaleString()} ₸
-                  </span>
-                </div>
+                <span className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
+                  {totalPrice.toLocaleString()} ₸
+                </span>
               </div>
               {totalSavingsIfOptimal > 0 && strategy !== "optimal" && (
                 <button
                   onClick={() => applyStrategy("optimal")}
                   className="w-full mt-1 text-[12px] text-center py-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  💡 Переключить на оптимальный микс и сэкономить {totalSavingsIfOptimal.toLocaleString()} ₸
+                  💡 Оптимальный микс сэкономит {totalSavingsIfOptimal.toLocaleString()} ₸
                 </button>
               )}
             </div>
@@ -427,42 +364,24 @@ const CartPage = () => {
   );
 };
 
-// Strategy option row
 const StrategyOption = ({
-  label,
-  description,
-  total,
-  isActive,
-  isBest,
-  disabled,
-  onClick,
-  icon,
+  label, description, total, isActive, isBest, disabled, onClick, icon,
 }: {
-  label: string;
-  description: string;
-  total: number | null;
-  isActive: boolean;
-  isBest: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
+  label: string; description: string; total: number | null; isActive: boolean;
+  isBest: boolean; disabled?: boolean; onClick: () => void; icon: React.ReactNode;
 }) => (
   <button
     onClick={onClick}
     disabled={disabled}
     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${
-      disabled
-        ? "opacity-40 cursor-not-allowed"
-        : isActive
-        ? "bg-foreground text-background"
+      disabled ? "opacity-40 cursor-not-allowed"
+        : isActive ? "bg-foreground text-background"
         : "bg-secondary/60 hover:bg-secondary text-foreground"
     }`}
   >
-    <div className="shrink-0 flex items-center justify-center w-5 h-5">
-      {icon}
-    </div>
+    <div className="shrink-0 flex items-center justify-center w-5 h-5">{icon}</div>
     <div className="flex-1 min-w-0">
-      <p className={`text-[13px] font-medium leading-tight ${isActive ? "" : ""}`}>{label}</p>
+      <p className="text-[13px] font-medium leading-tight">{label}</p>
       <p className={`text-[11px] ${isActive ? "opacity-70" : "text-muted-foreground"}`}>{description}</p>
     </div>
     <div className="shrink-0 text-right">
@@ -477,9 +396,7 @@ const StrategyOption = ({
         <p className="text-[11px] text-muted-foreground">—</p>
       )}
     </div>
-    {isActive && (
-      <Check className="w-4 h-4 shrink-0" />
-    )}
+    {isActive && <Check className="w-4 h-4 shrink-0" />}
   </button>
 );
 
