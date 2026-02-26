@@ -122,7 +122,7 @@ const BottomSearchBar = () => {
   return (
     <div className="fixed bottom-0 sm:bottom-6 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
       {/* Gradient fade */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background to-transparent pointer-events-none" />
 
       <div className="relative">
         {/* Search bar - ChatGPT/Grok style */}
