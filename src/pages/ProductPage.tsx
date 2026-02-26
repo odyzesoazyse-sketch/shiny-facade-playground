@@ -116,12 +116,6 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {product.description && (
-                <p className="text-[11px] text-muted-foreground leading-relaxed mt-1.5 line-clamp-2">
-                  {product.description}
-                </p>
-              )}
-
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-lg sm:text-xl font-bold text-foreground">{bestPrice} ₸</span>
                 {worstPrice > bestPrice && (
@@ -131,6 +125,12 @@ const ProductPage = () => {
               </div>
             </div>
           </div>
+
+          {product.description && (
+            <p className="text-xs text-muted-foreground leading-relaxed px-3 sm:px-5 pb-3">
+              {product.description}
+            </p>
+          )}
 
           {/* Store prices — no border, just spacing */}
           <div className="space-y-2 mb-4">
