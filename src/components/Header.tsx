@@ -87,7 +87,7 @@ const Header = () => {
 
               <Link
                 to="/cart"
-                className="relative flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                className="relative hidden sm:flex items-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ShoppingCart className="w-4 h-4" />
                 {totalItems > 0 && (
