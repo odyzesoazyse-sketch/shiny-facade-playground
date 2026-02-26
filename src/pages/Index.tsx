@@ -3,19 +3,22 @@ import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "luci
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import { allProducts, storeNames } from "@/data/mockProducts";
+import { allProducts, storeNames, categories } from "@/data/mockProducts";
 import StoreLogo from "@/components/StoreLogo";
-
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"deals" | "drops">("deals");
+  const [activeCategory, setActiveCategory] = useState("Все");
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  const hotDeals = allProducts.filter((p) => p.discountPercent >= 50);
   const topDeals = allProducts
     .slice()
     .sort((a, b) => b.discountPercent - a.discountPercent)
     .slice(0, 10);
+
+  const priceDrops = allProducts
+    .filter((p) => p.discountPercent >= 50)
+    .filter((p) => !topDeals.find((d) => d.id === p.id)); // exclude already shown in slider
 
   const priceUps = allProducts.filter((p) =>
     p.priceHistory &&
@@ -27,6 +30,10 @@ const Index = () => {
     })()
   );
 
+  // Filter catalog by category
+  const catalogProducts = activeCategory === "Все"
+    ? allProducts
+    : allProducts.filter((p) => p.category === activeCategory);
 
   const scroll = (dir: "left" | "right") => {
     if (sliderRef.current) {
@@ -36,37 +43,59 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-32 sm:pb-16">
+    <div className="min-h-screen bg-background pb-36 sm:pb-20">
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-        {/* Описание сайта */}
-        <section className="mb-6 rounded-xl bg-secondary/50 border border-border px-4 py-4 sm:px-5 sm:py-5">
-          <h1 className="text-lg sm:text-xl font-bold text-foreground mb-1">
-            minprice.kz — сравнение цен на продукты
-          </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            Находим самую низкую цену среди популярных магазинов Казахстана
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {storeNames.map((store) => (
-              <span
-                key={store}
-                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground flex items-center gap-1.5"
-              >
+        {/* Compact hero */}
+        <section className="mb-5 flex items-center gap-3 rounded-xl bg-secondary/50 border border-border px-4 py-3">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-sm sm:text-base font-bold text-foreground">
+              Сравнение цен на продукты
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Находим минимальную цену в {storeNames.length} магазинах
+            </p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {storeNames.slice(0, 4).map((store) => (
+              <span key={store} className="w-7 h-7 rounded-full bg-background border border-border flex items-center justify-center">
                 <StoreLogo store={store} size="sm" />
-                {store}
               </span>
+            ))}
+            {storeNames.length > 4 && (
+              <span className="w-7 h-7 rounded-full bg-background border border-border flex items-center justify-center text-[10px] text-muted-foreground font-medium">
+                +{storeNames.length - 4}
+              </span>
+            )}
+          </div>
+        </section>
+
+        {/* Categories */}
+        <section className="mb-5 -mx-3 px-3 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1.5 w-max">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                  activeCategory === cat
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {cat}
+              </button>
             ))}
           </div>
         </section>
 
-        {/* 🔥 Выгодные предложения — horizontal slider */}
+        {/* 🔥 Top deals slider */}
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
               <Flame className="w-5 h-5 text-destructive" />
-              Выгодные предложения
+              Лучшие скидки
             </h2>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">{topDeals.length} товаров</span>
@@ -91,9 +120,6 @@ const Index = () => {
             ))}
           </div>
         </section>
-
-
-
 
         {/* Price changes tabs */}
         <section className="mb-8">
@@ -123,9 +149,14 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {(activeTab === "deals" ? hotDeals : priceUps).map((product) => (
+            {(activeTab === "deals" ? priceDrops : priceUps).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+            {activeTab === "deals" && priceDrops.length === 0 && (
+              <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
+                Все лучшие скидки показаны выше
+              </p>
+            )}
             {activeTab === "drops" && priceUps.length === 0 && (
               <p className="col-span-full text-sm text-muted-foreground py-8 text-center">
                 Нет товаров с повышением цен
@@ -138,15 +169,15 @@ const Index = () => {
         <section>
           <div className="flex items-baseline justify-between mb-3">
             <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
-              Весь каталог
+              {activeCategory === "Все" ? "Весь каталог" : activeCategory}
             </h2>
             <span className="text-xs text-muted-foreground">
-              {allProducts.length} товаров
+              {catalogProducts.length} товаров
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-            {allProducts.map((product) => (
+            {catalogProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

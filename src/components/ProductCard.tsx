@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { Product } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
 import StoreLogo from "@/components/StoreLogo";
+import { useState } from "react";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { items, addItem, updateQuantity, removeItem } = useCart();
   const bestStore = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
   const worstPrice = Math.max(...product.stores.map((s) => s.oldPrice || s.price));
+  const [justAdded, setJustAdded] = useState(false);
 
-  // Find if this product is already in cart (any store)
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem?.quantity || 0;
 
@@ -17,6 +18,8 @@ const ProductCard = ({ product }: { product: Product }) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, bestStore.store, bestStore.price);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 600);
   };
 
   const handleIncrement = (e: React.MouseEvent) => {
@@ -46,7 +49,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     >
       {/* Image */}
       <div className="relative p-3 pb-0">
-        {/* Separate badges like original */}
         <div className="absolute top-2 left-2 z-10 flex gap-1">
           <span className="discount-badge">-{product.discountPercent}%</span>
           <span className="savings-badge">-{product.savingsAmount} ₸</span>
@@ -75,7 +77,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <p className="text-[11px] text-muted-foreground mt-0.5">{product.weight}</p>
       </div>
 
-      {/* Store prices with best price label */}
+      {/* Store prices */}
       <div className="px-3 py-1.5 space-y-1 border-t border-border">
         {product.stores.map((store) => {
           const isBest = store.price === bestStore.price;
@@ -108,25 +110,29 @@ const ProductCard = ({ product }: { product: Product }) => {
         {quantity === 0 ? (
           <button
             onClick={handleAdd}
-            className="w-full h-8 rounded-lg border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.98] transition-all"
+            className={`w-full h-9 rounded-xl border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.96] transition-all duration-200 ${
+              justAdded ? "animate-cart-pop bg-primary text-primary-foreground border-primary" : ""
+            }`}
           >
             <Plus className="w-3.5 h-3.5" />
             Добавить
           </button>
         ) : (
-          <div className="flex items-center justify-between h-8">
+          <div className="flex items-center h-9 rounded-xl bg-primary overflow-hidden transition-all duration-200 animate-scale-in">
             <button
               onClick={handleDecrement}
-              className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              className="h-full px-3 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/10 active:scale-90 transition-all"
             >
-              <Minus className="w-3.5 h-3.5" />
+              <Minus className="w-4 h-4" />
             </button>
-            <span className="text-sm font-semibold text-foreground">{quantity}</span>
+            <span className="flex-1 text-center text-sm font-semibold text-primary-foreground">
+              {quantity}
+            </span>
             <button
               onClick={handleIncrement}
-              className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+              className="h-full px-3 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/10 active:scale-90 transition-all"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
             </button>
           </div>
         )}
