@@ -21,7 +21,27 @@ const ProductPage = () => {
       .slice(0, 4);
   }, [product]);
 
-  if (!product) {
+  const bestStore = product ? product.stores.reduce((a, b) => (a.price < b.price ? a : b)) : null;
+  const bestPrice = bestStore?.price ?? 0;
+  const worstPrice = product ? Math.max(...product.stores.map((s) => s.oldPrice || s.price)) : 0;
+
+  const cartItem = items.find((i) => i.product.id === id);
+  const quantity = cartItem?.quantity || 0;
+
+  const chartData = useMemo(() => {
+    if (!product?.priceHistory || product.priceHistory.length === 0) return [];
+    const now = new Date();
+    const daysBack = parseInt(historyPeriod);
+    const cutoff = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+    return product.priceHistory
+      .filter((point) => new Date(point.date) >= cutoff)
+      .map((point) => ({
+        date: new Date(point.date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
+        ...point.prices,
+      }));
+  }, [product?.priceHistory, historyPeriod]);
+
+  if (!product || !bestStore) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -35,43 +55,11 @@ const ProductPage = () => {
     );
   }
 
-  const bestStore = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
-  const bestPrice = bestStore.price;
-  const worstPrice = Math.max(...product.stores.map((s) => s.oldPrice || s.price));
-
-  // Cart state for this product
-  const cartItem = items.find((i) => i.product.id === product.id);
-  const quantity = cartItem?.quantity || 0;
-
   const handleAdd = () => {
     addItem(product, bestStore.store, bestStore.price);
   };
 
   const handleIncrement = () => {
-    if (cartItem) updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity + 1);
-  };
-
-  const handleDecrement = () => {
-    if (cartItem) {
-      if (cartItem.quantity <= 1) removeItem(cartItem.product.id, cartItem.store);
-      else updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
-    }
-  };
-
-  // Filter price history by period
-  const chartData = useMemo(() => {
-    if (!product.priceHistory || product.priceHistory.length === 0) return [];
-    const now = new Date();
-    const daysBack = parseInt(historyPeriod);
-    const cutoff = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-
-    return product.priceHistory
-      .filter((point) => new Date(point.date) >= cutoff)
-      .map((point) => ({
-        date: new Date(point.date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
-        ...point.prices,
-      }));
-  }, [product.priceHistory, historyPeriod]);
 
   const handleShare = async () => {
     const url = window.location.href;
