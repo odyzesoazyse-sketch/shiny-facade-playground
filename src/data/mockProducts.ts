@@ -247,6 +247,7 @@ export const allProducts: Product[] = [
   {
     id: "10",
     name: "Ополаскиватель Lacalut Sensitive для полости рта с мицеллярной водой 500мл",
+    description: "Ополаскиватель с мицеллярной водой для чувствительных зубов и дёсен. Мягкое очищение без раздражения.",
     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
     weight: "500мл",
     discountPercent: 82,
