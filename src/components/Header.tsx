@@ -151,7 +151,7 @@ const BottomSearchBar = () => {
       </div>
 
       {/* Mobile nav tabs - separate full-width bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)] pointer-events-auto">
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)] pointer-events-auto">
         <div className="flex items-center justify-around h-10">
           {tabs.map((tab) => {
             const isActive =
