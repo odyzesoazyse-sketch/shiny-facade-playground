@@ -201,6 +201,7 @@ export const allProducts: Product[] = [
   {
     id: "8",
     name: "Масло подсолнечное рафинированное Олейна 1л",
+    description: "Рафинированное подсолнечное масло для жарки и заправки. Без запаха и осадка.",
     image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop",
     weight: "1л",
     discountPercent: 25,
