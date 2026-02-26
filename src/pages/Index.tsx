@@ -152,7 +152,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-border text-center text-[11px] text-muted-foreground">
-        © 2025 MinPrice.kz — Все цены актуальны на момент обновления
+        © 2025 minprice.kz — Все цены актуальны на момент обновления
       </div>
     </div>
   </footer>

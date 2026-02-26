@@ -25,7 +25,7 @@ const Header = () => {
             <Link to="/" className="shrink-0 flex items-center gap-1.5">
               <img src={logo} alt="MinPrice.kz" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover" />
               <span className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
-                MinPrice
+                minprice.kz
               </span>
             </Link>
 
