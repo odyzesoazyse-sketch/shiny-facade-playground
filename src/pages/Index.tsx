@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, storeNames } from "@/data/mockProducts";
