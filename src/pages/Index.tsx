@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useRef } from "react";
 import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
