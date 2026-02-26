@@ -120,13 +120,10 @@ const BottomSearchBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 sm:bottom-6 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
-      {/* Gradient fade */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background to-transparent pointer-events-none" />
-
-      <div className="relative">
+    <div className="fixed bottom-10 sm:bottom-6 left-0 right-0 z-50 pointer-events-none">
+      <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
         {/* Search bar - ChatGPT/Grok style */}
-        <form onSubmit={handleSearch} className="px-3 sm:px-4 pt-3 pb-2 max-w-3xl mx-auto">
+        <form onSubmit={handleSearch} className="pt-3 pb-2">
           <div
             className={`relative flex items-center gap-2 rounded-3xl border-2 bg-card shadow-lg transition-all duration-200 ${
               isFocused
@@ -156,9 +153,11 @@ const BottomSearchBar = () => {
             </button>
           </div>
         </form>
+      </div>
 
-        {/* Mobile nav tabs */}
-        <nav className="sm:hidden flex items-center justify-around h-10 pb-1">
+      {/* Mobile nav tabs - separate full-width bar */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)] pointer-events-auto">
+        <div className="flex items-center justify-around h-10">
           {tabs.map((tab) => {
             const isActive =
               tab.to === "/"
@@ -183,8 +182,8 @@ const BottomSearchBar = () => {
               </Link>
             );
           })}
-        </nav>
-      </div>
+        </div>
+      </nav>
     </div>
   );
 };
