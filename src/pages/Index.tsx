@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
