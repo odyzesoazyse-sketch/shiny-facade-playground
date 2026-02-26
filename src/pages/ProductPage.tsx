@@ -81,46 +81,47 @@ const ProductPage = () => {
 
         {/* Product header — catalog style */}
         <div className="rounded-2xl overflow-hidden mb-4">
-          {/* Image */}
-          <div className="relative p-3 pb-0">
-            <div className="absolute top-2 left-2 z-10 flex gap-1">
-              <span className="discount-badge">-{product.discountPercent}%</span>
-              <span className="savings-badge">-{product.savingsAmount} ₸</span>
-            </div>
-            <div className="aspect-square rounded-lg bg-secondary/50 overflow-hidden max-w-xs mx-auto sm:max-w-sm">
+          {/* Image left, info right */}
+          <div className="flex gap-3 p-3">
+            <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 rounded-xl overflow-hidden bg-secondary/30">
+              <div className="absolute top-1.5 left-1.5 z-10 flex gap-1">
+                <span className="discount-badge text-[10px]">-{product.discountPercent}%</span>
+                <span className="savings-badge text-[10px]">-{product.savingsAmount} ₸</span>
+              </div>
               <img
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </div>
-          </div>
 
-          {/* Price + Name */}
-          <div className="px-3 pt-2.5 pb-1.5">
-            <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="price-new">{bestPrice} ₸</span>
-              {worstPrice > bestPrice && (
-                <span className="price-old">{worstPrice} ₸</span>
-              )}
-            </div>
-            <h1 className="text-[13px] text-foreground leading-snug mb-1">
-              {product.name}
-            </h1>
-            <p className="text-[11px] text-muted-foreground">{product.weight}</p>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-1">
-              {product.brand && (
-                <span className="inline-flex items-center gap-1">
-                  <Tag className="w-2.5 h-2.5" />
-                  <span className="font-medium text-foreground">{product.brand}</span>
-                </span>
-              )}
-              {product.country && (
-                <span className="inline-flex items-center gap-1">
-                  <Globe className="w-2.5 h-2.5" />
-                  {product.country}
-                </span>
-              )}
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="price-new">{bestPrice} ₸</span>
+                  {worstPrice > bestPrice && (
+                    <span className="price-old">{worstPrice} ₸</span>
+                  )}
+                </div>
+                <h1 className="text-[13px] text-foreground leading-snug mb-1">
+                  {product.name}
+                </h1>
+                <p className="text-[11px] text-muted-foreground">{product.weight}</p>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-1">
+                  {product.brand && (
+                    <span className="inline-flex items-center gap-1">
+                      <Tag className="w-2.5 h-2.5" />
+                      <span className="font-medium text-foreground">{product.brand}</span>
+                    </span>
+                  )}
+                  {product.country && (
+                    <span className="inline-flex items-center gap-1">
+                      <Globe className="w-2.5 h-2.5" />
+                      {product.country}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
