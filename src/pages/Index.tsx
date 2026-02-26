@@ -9,7 +9,9 @@ import StoreLogo from "@/components/StoreLogo";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"deals" | "drops">("deals");
+  const [heroSearch, setHeroSearch] = useState("");
   const sliderRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const hotDeals = allProducts.filter((p) => p.discountPercent >= 50);
   const topDeals = allProducts
