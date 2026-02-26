@@ -60,6 +60,7 @@ export const allProducts: Product[] = [
   {
     id: "2",
     name: "Нори снеки Master Kan сушеные с солью 4г",
+    description: "Лёгкие и хрустящие снеки из водорослей нори с морской солью. Полезный перекус с натуральным вкусом.",
     image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
     weight: "4г",
     discountPercent: 70,
