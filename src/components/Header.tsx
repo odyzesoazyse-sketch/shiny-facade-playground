@@ -101,7 +101,27 @@ const placeholders = [
   "Где дешевле купить продукты?",
 ];
 
-const MOBILE_NAV_HEIGHT = 56; // h-14 = 3.5rem = 56px
+const MOBILE_NAV_HEIGHT = 56;
+
+const useScrollIdle = (idleMs = 400) => {
+  const [visible, setVisible] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    const onScroll = () => {
+      setVisible(false);
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setVisible(true), idleMs);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(timerRef.current);
+    };
+  }, [idleMs]);
+
+  return visible;
+};
 
 const BottomBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
