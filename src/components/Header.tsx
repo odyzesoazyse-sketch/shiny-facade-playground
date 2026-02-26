@@ -2,7 +2,7 @@ import { Search, ShoppingCart, MapPin, Home, Tag } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import logo from "@/assets/logo.jpg";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
