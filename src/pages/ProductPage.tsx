@@ -133,10 +133,7 @@ const ProductPage = () => {
               return (
                 <div key={store.store} className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: store.color }}
-                    />
+                    <StoreLogo store={store.store} size="md" />
                     <span className={`text-xs ${isBest ? "font-medium text-foreground" : "text-muted-foreground"}`}>
                       {store.store}
                     </span>
