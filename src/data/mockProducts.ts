@@ -179,6 +179,7 @@ export const allProducts: Product[] = [
   {
     id: "7",
     name: "Чай Ahmad Tea Earl Grey чёрный 100 пакетиков",
+    description: "Классический чёрный чай с бергамотом. 100 пакетиков — идеальный выбор для дома и офиса.",
     image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop",
     weight: "200г",
     discountPercent: 38,
