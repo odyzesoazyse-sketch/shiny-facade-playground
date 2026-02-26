@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, categories } from "@/data/mockProducts";
+import mascot from "@/assets/logo.png";
 
 const categoryEmojis: Record<string, string> = {
   "Сладости": "🍫",
