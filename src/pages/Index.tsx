@@ -5,17 +5,6 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts } from "@/data/mockProducts";
 
-const categoryEmojis: Record<string, string> = {
-  "Сладости": "🍫",
-  "Снеки": "🥨",
-  "Морепродукты": "🦀",
-  "Консервы": "🥫",
-  "Молочные": "🥛",
-  "Напитки": "☕",
-  "Бакалея": "🛒",
-  "Гигиена": "🧴",
-  "Полуфабрикаты": "🍜",
-};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"deals" | "drops">("deals");
