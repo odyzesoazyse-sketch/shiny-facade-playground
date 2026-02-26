@@ -4,6 +4,7 @@ import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag, Zap, Store, ChevronDown, C
 import Header from "@/components/Header";
 import { useCart } from "@/context/CartContext";
 import { allProducts, Product } from "@/data/mockProducts";
+import mascot from "@/assets/logo.png";
 
 type Strategy = "optimal" | string; // "optimal" or store name
 
@@ -153,8 +154,9 @@ const CartPage = () => {
 
         {items.length === 0 ? (
           <div className="text-center py-16">
-            <ShoppingBag className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm mb-4">Корзина пуста</p>
+            <img src={mascot} alt="Корзина пуста" className="w-20 h-20 mx-auto mb-3 object-contain opacity-50" />
+            <p className="text-muted-foreground text-sm mb-1">Корзина пуста</p>
+            <p className="text-xs text-muted-foreground mb-4">Добавьте товары для сравнения цен</p>
             <Link
               to="/"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground bg-secondary rounded-lg px-4 py-2 hover:bg-secondary/80 transition-colors"

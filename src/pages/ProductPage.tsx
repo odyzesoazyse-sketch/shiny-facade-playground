@@ -45,7 +45,7 @@ const ProductPage = () => {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const text = `${product.name} — от ${bestPrice} ₸ на MinPrice.kz`;
+    const text = `${product.name} — от ${bestPrice} ₸ на minprice.kz`;
     if (navigator.share) {
       try {
         await navigator.share({ title: product.name, text, url });
