@@ -120,7 +120,7 @@ const BottomSearchBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 sm:bottom-6 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)] pointer-events-none">
+    <div className="fixed bottom-10 sm:bottom-6 left-0 right-0 z-50 pointer-events-none">
       <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
         {/* Search bar - ChatGPT/Grok style */}
         <form onSubmit={handleSearch} className="pt-3 pb-2">
