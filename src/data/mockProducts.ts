@@ -133,6 +133,7 @@ export const allProducts: Product[] = [
   {
     id: "5",
     name: "Токпокки быстрого приготовления Hokang Wonderpokki Hot Spicy 120г",
+    description: "Острые корейские рисовые палочки токпокки — быстрое приготовление за 5 минут. Насыщенный пряный вкус.",
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=400&fit=crop",
     weight: "120г",
     discountPercent: 70,
