@@ -1,61 +1,103 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, ArrowLeft, Package, Search } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ChevronRight, ChevronDown, ArrowLeft, Package, Search } from "lucide-react";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, categories, categoryDetails } from "@/data/mockProducts";
 
-/** Grid of all categories */
-const CatalogGrid = () => {
+/** List of all categories with expandable subcategories */
+const CatalogList = () => {
   const navigate = useNavigate();
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
-  const cats = categories
+  const categoriesData = categories
     .filter((c) => c !== "Все")
     .map((cat) => ({
       name: cat,
       icon: categoryDetails[cat]?.icon || "📦",
+      subcategories: categoryDetails[cat]?.subcategories || [],
       count: allProducts.filter((p) => p.category === cat).length,
     }));
 
-  const total = allProducts.length;
+  const totalCount = allProducts.length;
+
+  const toggleExpand = (cat: string) => {
+    setExpandedCategory(expandedCategory === cat ? null : cat);
+  };
 
   return (
     <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      <h1 className="text-xl font-semibold tracking-tight text-foreground mb-4">
-        Каталог
-      </h1>
+      <div className="flex items-baseline justify-between mb-4">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          Каталог
+        </h1>
+        <span className="text-xs text-muted-foreground">{totalCount} товаров</span>
+      </div>
 
-      {/* All products */}
+      {/* All products link */}
       <button
         onClick={() => navigate("/search")}
-        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors mb-4"
+        className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors mb-3"
       >
         <div className="flex items-center gap-3">
           <Package className="w-5 h-5 text-muted-foreground" />
           <span className="text-sm font-semibold text-foreground">Все товары</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">{total}</span>
+          <span className="text-xs text-muted-foreground">{totalCount}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
       </button>
 
-      {/* Category grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
-        {cats.map((cat) => (
-          <button
-            key={cat.name}
-            onClick={() => navigate(`/catalog/${encodeURIComponent(cat.name)}`)}
-            className="flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl bg-secondary/40 hover:bg-secondary transition-colors group"
-          >
-            <span className="text-2xl sm:text-3xl">{cat.icon}</span>
-            <span className="text-[11px] sm:text-xs font-medium text-foreground text-center leading-tight line-clamp-2">
-              {cat.name}
-            </span>
-            {cat.count > 0 && (
-              <span className="text-[10px] text-muted-foreground">{cat.count}</span>
+      {/* Categories with subcategories */}
+      <div className="space-y-1">
+        {categoriesData.map((cat) => (
+          <div key={cat.name} className="rounded-xl overflow-hidden">
+            <div className="flex items-center">
+              <button
+                onClick={() => toggleExpand(cat.name)}
+                className="flex-1 flex items-center gap-3 px-4 py-3.5 hover:bg-accent/50 transition-colors"
+              >
+                <span className="text-xl leading-none">{cat.icon}</span>
+                <span className="text-sm font-medium text-foreground">{cat.name}</span>
+                <span className="text-xs text-muted-foreground ml-auto mr-2">
+                  {cat.count > 0 ? cat.count : ""}
+                </span>
+                {cat.subcategories.length > 0 ? (
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                      expandedCategory === cat.name ? "rotate-180" : ""
+                    }`}
+                  />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+              <button
+                onClick={() => navigate(`/catalog/${encodeURIComponent(cat.name)}`)}
+                className="px-3 py-3.5 text-xs text-primary font-medium hover:underline shrink-0"
+              >
+                Все →
+              </button>
+            </div>
+
+            {expandedCategory === cat.name && cat.subcategories.length > 0 && (
+              <div className="pl-12 pr-4 pb-2 space-y-0.5">
+                {cat.subcategories.map((sub) => (
+                  <button
+                    key={sub}
+                    onClick={() =>
+                      navigate(`/catalog/${encodeURIComponent(cat.name)}?sub=${encodeURIComponent(sub)}`)
+                    }
+                    className="w-full flex items-center justify-between py-2.5 px-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors"
+                  >
+                    <span>{sub}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                ))}
+              </div>
             )}
-          </button>
+          </div>
         ))}
       </div>
     </main>
@@ -67,13 +109,16 @@ const CategoryDetail = () => {
   const { category } = useParams<{ category: string }>();
   const decodedCategory = decodeURIComponent(category || "");
   const navigate = useNavigate();
-  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
+
+  const params = new URLSearchParams(window.location.search);
+  const initialSub = params.get("sub") || null;
+
+  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(initialSub);
   const [searchQuery, setSearchQuery] = useState("");
 
   const detail = categoryDetails[decodedCategory];
   const subcategories = detail?.subcategories || [];
 
-  // Filter products
   let products = allProducts.filter((p) => p.category === decodedCategory);
 
   if (activeSubcategory) {
@@ -88,7 +133,6 @@ const CategoryDetail = () => {
 
   return (
     <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      {/* Back + title */}
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => navigate("/catalog")}
@@ -105,7 +149,6 @@ const CategoryDetail = () => {
         <span className="text-xs text-muted-foreground shrink-0">{products.length} товаров</span>
       </div>
 
-      {/* Search within category */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
@@ -117,7 +160,6 @@ const CategoryDetail = () => {
         />
       </div>
 
-      {/* Subcategory chips */}
       {subcategories.length > 0 && (
         <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 mb-4">
           <div className="flex gap-1.5 w-max">
@@ -148,7 +190,6 @@ const CategoryDetail = () => {
         </div>
       )}
 
-      {/* Products grid */}
       {products.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {products.map((product) => (
@@ -176,7 +217,7 @@ const CatalogPage = () => {
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-16">
       <Header />
-      {category ? <CategoryDetail /> : <CatalogGrid />}
+      {category ? <CategoryDetail /> : <CatalogList />}
     </div>
   );
 };
