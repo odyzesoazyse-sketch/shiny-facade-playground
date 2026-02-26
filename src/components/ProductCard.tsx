@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Plus, Minus } from "lucide-react";
 import { Product } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
+import StoreLogo from "@/components/StoreLogo";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { items, addItem, updateQuantity, removeItem } = useCart();
