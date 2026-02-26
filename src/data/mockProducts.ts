@@ -109,6 +109,7 @@ export const allProducts: Product[] = [
   {
     id: "4",
     name: "Огурцы Globus Дунайский лес маринованные с ягодами можжевельника 500мл",
+    description: "Маринованные огурцы с можжевеловыми ягодами — пикантный вкус для любых блюд и закусок.",
     image: "https://images.unsplash.com/photo-1465014925804-7b9ede58d0d7?w=400&h=400&fit=crop",
     weight: "500мл",
     discountPercent: 62,
