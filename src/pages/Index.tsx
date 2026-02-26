@@ -26,9 +26,6 @@ const Index = () => {
     })()
   );
 
-  const totalSavings = useMemo(() => {
-    return allProducts.reduce((sum, p) => sum + p.savingsAmount, 0);
-  }, []);
 
   const scroll = (dir: "left" | "right") => {
     if (sliderRef.current) {
