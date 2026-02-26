@@ -4,6 +4,7 @@ import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag, Zap, Store, ChevronDown, C
 import Header from "@/components/Header";
 import { useCart } from "@/context/CartContext";
 import { allProducts, Product } from "@/data/mockProducts";
+import mascot from "@/assets/logo.png";
 
 type Strategy = "optimal" | string; // "optimal" or store name
 
