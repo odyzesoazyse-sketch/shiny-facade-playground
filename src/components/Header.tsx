@@ -87,7 +87,7 @@ const Header = () => {
 
               <Link
                 to="/cart"
-                className="relative flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                className="relative hidden sm:flex items-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ShoppingCart className="w-4 h-4" />
                 {totalItems > 0 && (
@@ -102,9 +102,7 @@ const Header = () => {
           {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-6 -mb-px text-sm">
             <NavLink to="/" label="Главная" />
-            <NavLink to="/search" label="Поиск" />
             <NavLink to="/search?sort=discount" label="Скидки" />
-            <NavLink to="/cart" label="Корзина" />
           </nav>
         </div>
       </header>
