@@ -39,6 +39,27 @@ const Index = () => {
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        {/* Описание сайта */}
+        <section className="mb-6 rounded-xl bg-secondary/50 border border-border px-4 py-4 sm:px-5 sm:py-5">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground mb-1.5">
+            minprice.kz — сравнение цен на продукты
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            Находим самую низкую цену на продукты среди популярных магазинов Казахстана. 
+            Отслеживаем изменения цен каждый день, чтобы вы всегда покупали выгодно.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {["Magnum", "Arbuz", "Kaspi Magazin", "Small", "Galmart"].map((store) => (
+              <span
+                key={store}
+                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground"
+              >
+                {store}
+              </span>
+            ))}
+          </div>
+        </section>
+
         {/* 🔥 Выгодные предложения — horizontal slider */}
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
