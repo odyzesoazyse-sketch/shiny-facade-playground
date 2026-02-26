@@ -33,6 +33,7 @@ export const allProducts: Product[] = [
   {
     id: "1",
     name: "Вафли Трубочки TWIX хрустящие с кремовой начинкой со вкусом карамели 22.5г",
+    description: "Хрустящие вафельные трубочки с нежной кремовой начинкой и карамелью. Идеальный перекус к чаю или кофе.",
     image: "https://s3-pic.e-magnum.kz/item/387466.jpg",
     weight: "22.5г",
     discountPercent: 71,
