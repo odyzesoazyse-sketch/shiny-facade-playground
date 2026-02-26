@@ -85,34 +85,8 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Savings banner */}
-        <section className="mb-4 sm:mb-5 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex items-center gap-3">
-          <img src={mascot} alt="minprice.kz маскот" className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-foreground">
-              Экономия до {totalSavings.toLocaleString("ru-RU")} ₸
-            </p>
-            <p className="text-xs text-muted-foreground">
-              на {allProducts.length} товарах среди 5 магазинов
-            </p>
-          </div>
-        </section>
 
-        {/* Category chips */}
-        <section className="mb-5 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1.5 sm:flex-wrap">
-            {categories.filter((c) => c !== "Все").map((cat) => (
-              <Link
-                key={cat}
-                to={`/search?cat=${encodeURIComponent(cat)}`}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary text-secondary-foreground hover:bg-accent transition-colors whitespace-nowrap flex items-center gap-1.5"
-              >
-                <span>{categoryEmojis[cat] || "📦"}</span>
-                {cat}
-              </Link>
-            ))}
-          </div>
-        </section>
+
 
         {/* Price changes tabs */}
         <section className="mb-8">
