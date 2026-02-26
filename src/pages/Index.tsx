@@ -50,11 +50,12 @@ const Index = () => {
             Отслеживаем изменения цен каждый день, чтобы вы всегда покупали выгодно.
           </p>
           <div className="flex flex-wrap gap-2">
-            {["Magnum", "Arbuz", "Kaspi Magazin", "Small", "Galmart"].map((store) => (
+            {storeNames.map((store) => (
               <span
                 key={store}
-                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground"
+                className="px-2.5 py-1 rounded-md bg-background border border-border text-xs font-medium text-foreground flex items-center gap-1.5"
               >
+                <StoreLogo store={store} size="sm" />
                 {store}
               </span>
             ))}
