@@ -120,10 +120,10 @@ const BottomSearchBar = () => {
         {/* Search bar - ChatGPT/Grok style */}
         <form onSubmit={handleSearch} className="pt-3 pb-2">
           <div
-            className={`relative flex items-center gap-2 rounded-3xl border-2 bg-card shadow-lg transition-all duration-200 ${
+            className={`relative flex items-center gap-2 rounded-3xl bg-card/80 backdrop-blur-xl shadow-lg transition-all duration-200 ${
               isFocused
-                ? "border-primary shadow-primary/20 shadow-xl"
-                : "border-border hover:border-muted-foreground/30"
+                ? "border-2 border-primary shadow-primary/20 shadow-xl"
+                : "border-2 border-border hover:border-muted-foreground/30"
             }`}
           >
             <Search className={`absolute left-4 w-5 h-5 transition-colors ${isFocused ? "text-primary" : "text-muted-foreground"}`} />
