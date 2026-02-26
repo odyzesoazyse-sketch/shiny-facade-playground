@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import Index from "./pages/Index";
 import ProductPage from "./pages/ProductPage";
 import SearchPage from "./pages/SearchPage";
+import CatalogPage from "./pages/CatalogPage";
 import CartPage from "./pages/CartPage";
 import NotFound from "./pages/NotFound";
 
