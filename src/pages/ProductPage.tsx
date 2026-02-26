@@ -81,12 +81,12 @@ const ProductPage = () => {
         </div>
 
         {/* Product image — full format like catalog */}
-        <div className="relative rounded-2xl overflow-hidden mb-4">
+        <div className="relative rounded-2xl overflow-hidden mb-4 max-w-xs mx-auto sm:max-w-sm">
           <div className="absolute top-3 left-3 z-10 flex gap-1">
             <span className="discount-badge">-{product.discountPercent}%</span>
             <span className="savings-badge">-{product.savingsAmount} ₸</span>
           </div>
-          <div className="aspect-square bg-secondary/50 overflow-hidden">
+          <div className="aspect-square bg-secondary/50 overflow-hidden rounded-2xl">
             <img
               src={product.image}
               alt={product.name}
@@ -179,7 +179,7 @@ const ProductPage = () => {
 
         {/* Price History Chart */}
         {product.priceHistory && product.priceHistory.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 mb-4">
+          <div className="bg-card rounded-2xl p-4 sm:p-6 mb-4">
             <h2 className="text-base font-semibold text-foreground mb-4">История цен</h2>
 
             <div className="flex items-center gap-1 mb-5">
