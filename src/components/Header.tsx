@@ -17,6 +17,7 @@ const Header = () => {
   const [selectedCity, setSelectedCity] = useState("Алматы");
   const [cityOpen, setCityOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const { totalItems } = useCart();
 
   const toggleTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -26,7 +27,7 @@ const Header = () => {
   return (
     <>
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-6xl mx-auto px-3 sm:pl-20 sm:px-6">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6">
           <div className="flex items-center justify-between h-12 sm:h-14">
             <Link to="/" className="shrink-0 flex items-center gap-1.5">
               <img src={logo} alt="minprice.kz" className="w-9 h-9 sm:w-11 sm:h-11 object-contain" />
@@ -78,52 +79,26 @@ const Header = () => {
               >
                 <ScanBarcode className="w-4.5 h-4.5" />
               </button>
+
+              {/* Cart icon in header */}
+              <Link
+                to="/cart"
+                className="relative flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+              >
+                <ShoppingCart className="w-4.5 h-4.5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <DesktopSidebar />
       <BottomBar />
     </>
-  );
-};
-
-/** Desktop sidebar — hidden on mobile */
-const DesktopSidebar = () => {
-  const location = useLocation();
-  const { totalItems } = useCart();
-
-  const isActive = (item: typeof navItems[0]) => {
-    if (item.matchExact) return location.pathname === item.to;
-    return location.pathname.startsWith(item.to.split("?")[0]);
-  };
-
-  return (
-    <aside className="hidden sm:flex fixed left-0 top-0 bottom-0 z-40 w-16 flex-col items-center py-20 gap-1 bg-card/60 backdrop-blur-xl border-r border-border">
-      {navItems.map((item) => {
-        const active = isActive(item);
-        return (
-          <Link
-            key={item.label}
-            to={item.to}
-            className={`relative flex flex-col items-center gap-0.5 w-14 py-2.5 rounded-xl transition-colors ${
-              active
-                ? "text-foreground bg-accent"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-            }`}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{item.label}</span>
-            {item.hasBadge && totalItems > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
-          </Link>
-        );
-      })}
-    </aside>
   );
 };
 
@@ -175,7 +150,7 @@ const BottomBar = () => {
       <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
         searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
       }`}>
-        <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:pl-20 sm:px-4">
+        <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
           <form onSubmit={handleSearch} className="py-2">
             <div
               className={`relative flex items-center gap-2 rounded-3xl bg-card/90 backdrop-blur-xl transition-all duration-200 ${
