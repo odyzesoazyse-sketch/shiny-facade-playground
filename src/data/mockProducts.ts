@@ -156,6 +156,7 @@ export const allProducts: Product[] = [
   {
     id: "6",
     name: "Молоко Lactel ультрапастеризованное 3.2% 1л",
+    description: "Французское ультрапастеризованное молоко жирностью 3.2%. Длительный срок хранения без консервантов.",
     image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
     weight: "1л",
     discountPercent: 45,
