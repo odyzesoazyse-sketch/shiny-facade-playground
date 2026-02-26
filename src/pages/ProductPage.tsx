@@ -95,31 +95,33 @@ const ProductPage = () => {
               />
             </div>
 
-          {/* Price + Name */}
-          <div className="px-3 pt-2.5 pb-1.5">
-            <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="price-new">{bestPrice} ₸</span>
-              {worstPrice > bestPrice && (
-                <span className="price-old">{worstPrice} ₸</span>
-              )}
-            </div>
-            <h1 className="text-[13px] text-foreground leading-snug mb-1">
-              {product.name}
-            </h1>
-            <p className="text-[11px] text-muted-foreground">{product.weight}</p>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-1">
-              {product.brand && (
-                <span className="inline-flex items-center gap-1">
-                  <Tag className="w-2.5 h-2.5" />
-                  <span className="font-medium text-foreground">{product.brand}</span>
-                </span>
-              )}
-              {product.country && (
-                <span className="inline-flex items-center gap-1">
-                  <Globe className="w-2.5 h-2.5" />
-                  {product.country}
-                </span>
-              )}
+            <div className="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <div className="flex items-baseline gap-1.5 mb-1">
+                  <span className="price-new">{bestPrice} ₸</span>
+                  {worstPrice > bestPrice && (
+                    <span className="price-old">{worstPrice} ₸</span>
+                  )}
+                </div>
+                <h1 className="text-[13px] text-foreground leading-snug mb-1">
+                  {product.name}
+                </h1>
+                <p className="text-[11px] text-muted-foreground">{product.weight}</p>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-1">
+                  {product.brand && (
+                    <span className="inline-flex items-center gap-1">
+                      <Tag className="w-2.5 h-2.5" />
+                      <span className="font-medium text-foreground">{product.brand}</span>
+                    </span>
+                  )}
+                  {product.country && (
+                    <span className="inline-flex items-center gap-1">
+                      <Globe className="w-2.5 h-2.5" />
+                      {product.country}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
