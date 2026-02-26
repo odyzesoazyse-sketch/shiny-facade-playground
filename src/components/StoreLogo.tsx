@@ -1,4 +1,4 @@
-import { getStoreLogo, getStoreInitial, storeColors } from "@/lib/storeLogos";
+import { getStoreLogo, getStoreInitial } from "@/lib/storeLogos";
 
 interface StoreLogoProps {
   store: string;
@@ -9,7 +9,6 @@ interface StoreLogoProps {
 const StoreLogo = ({ store, size = "sm", className = "" }: StoreLogoProps) => {
   const logo = getStoreLogo(store);
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
-  const textSize = size === "sm" ? "text-[8px]" : "text-[10px]";
 
   if (logo) {
     return (
@@ -21,11 +20,9 @@ const StoreLogo = ({ store, size = "sm", className = "" }: StoreLogoProps) => {
     );
   }
 
-  const color = storeColors[store] || "#6b7280";
   return (
     <span
-      className={`${sizeClass} rounded-sm shrink-0 flex items-center justify-center text-white font-bold ${textSize} ${className}`}
-      style={{ backgroundColor: color }}
+      className={`${sizeClass} rounded-sm shrink-0 flex items-center justify-center bg-muted text-muted-foreground font-bold text-[8px] ${className}`}
     >
       {getStoreInitial(store)}
     </span>

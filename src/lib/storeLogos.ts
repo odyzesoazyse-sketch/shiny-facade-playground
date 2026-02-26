@@ -1,20 +1,16 @@
-import magnumLogo from "@/assets/stores/magnum.ico";
-import arbuzLogo from "@/assets/stores/arbuz.ico";
-import smallLogo from "@/assets/stores/small.ico";
+import magnumLogo from "@/assets/stores/magnum.png";
+import airbaFreshLogo from "@/assets/stores/airba_fresh.png";
+import astoreLogo from "@/assets/stores/astore.png";
+import arbuzLogo from "@/assets/stores/arbuz.png";
+import smallLogo from "@/assets/stores/small.png";
 
 export const storeLogos: Record<string, string> = {
   "MGO": magnumLogo,
   "Magnum": magnumLogo,
+  "Airba Fresh": airbaFreshLogo,
+  "A-Store ADK": astoreLogo,
   "Arbuz": arbuzLogo,
   "Small": smallLogo,
-};
-
-export const storeColors: Record<string, string> = {
-  "MGO": "#22c55e",
-  "Airba Fresh": "#3b82f6",
-  "A-Store ADK": "#f59e0b",
-  "Arbuz": "#ef4444",
-  "Small": "#a855f7",
 };
 
 export function getStoreLogo(storeName: string): string | null {
