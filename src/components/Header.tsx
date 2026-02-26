@@ -101,11 +101,32 @@ const placeholders = [
   "Где дешевле купить продукты?",
 ];
 
-const MOBILE_NAV_HEIGHT = 56; // h-14 = 3.5rem = 56px
+const MOBILE_NAV_HEIGHT = 56;
+
+const useScrollIdle = (idleMs = 400) => {
+  const [visible, setVisible] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    const onScroll = () => {
+      setVisible(false);
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setVisible(true), idleMs);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(timerRef.current);
+    };
+  }, [idleMs]);
+
+  return visible;
+};
 
 const BottomBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const searchVisible = useScrollIdle(500);
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
@@ -126,8 +147,10 @@ const BottomBar = () => {
 
   return (
     <>
-      {/* Search bar - always visible, positioned above mobile nav */}
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none">
+      {/* Search bar - hides on scroll, reappears on stop */}
+      <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
+        searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      }`}>
         <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
           <form onSubmit={handleSearch} className="py-2">
             <div
