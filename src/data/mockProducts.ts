@@ -84,6 +84,7 @@ export const allProducts: Product[] = [
   {
     id: "3",
     name: "Крабовые палочки Vici Снежный краб охлажденные 250г",
+    description: "Охлаждённые крабовые палочки из сурими. Подходят для салатов, закусок и горячих блюд.",
     image: "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=400&h=400&fit=crop",
     weight: "250г",
     discountPercent: 66,
