@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronRight, ChevronDown, ArrowLeft, Package, Search } from "lucide-react";
 import Header from "@/components/Header";
+import CategorySidebar from "@/components/CategorySidebar";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, categories, categoryDetails } from "@/data/mockProducts";
 
-/** List of all categories with expandable subcategories */
+/** Mobile/tablet: full category list */
 const CatalogList = () => {
   const navigate = useNavigate();
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -26,7 +27,7 @@ const CatalogList = () => {
   };
 
   return (
-    <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <>
       <div className="flex items-baseline justify-between mb-4">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           Каталог
@@ -34,7 +35,6 @@ const CatalogList = () => {
         <span className="text-xs text-muted-foreground">{totalCount} товаров</span>
       </div>
 
-      {/* All products link */}
       <button
         onClick={() => navigate("/search")}
         className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors mb-3"
@@ -49,7 +49,6 @@ const CatalogList = () => {
         </div>
       </button>
 
-      {/* Categories with subcategories */}
       <div className="space-y-1">
         {categoriesData.map((cat) => (
           <div key={cat.name} className="rounded-xl overflow-hidden">
@@ -100,14 +99,13 @@ const CatalogList = () => {
           </div>
         ))}
       </div>
-    </main>
+    </>
   );
 };
 
 /** Category detail: subcategory chips + products */
-const CategoryDetail = () => {
-  const { category } = useParams<{ category: string }>();
-  const decodedCategory = decodeURIComponent(category || "");
+const CategoryDetail = ({ category }: { category: string }) => {
+  const decodedCategory = decodeURIComponent(category);
   const navigate = useNavigate();
 
   const params = new URLSearchParams(window.location.search);
@@ -132,7 +130,7 @@ const CategoryDetail = () => {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+    <>
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => navigate("/catalog")}
@@ -191,7 +189,7 @@ const CategoryDetail = () => {
       )}
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -207,7 +205,7 @@ const CategoryDetail = () => {
           <p className="text-xs text-muted-foreground mt-1">Скоро появятся!</p>
         </div>
       )}
-    </main>
+    </>
   );
 };
 
@@ -217,7 +215,14 @@ const CatalogPage = () => {
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-16">
       <Header />
-      {category ? <CategoryDetail /> : <CatalogList />}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex gap-6">
+        {/* Desktop sidebar */}
+        <CategorySidebar activeCategory={category ? decodeURIComponent(category) : undefined} />
+
+        <main className="flex-1 min-w-0">
+          {category ? <CategoryDetail category={category} /> : <CatalogList />}
+        </main>
+      </div>
     </div>
   );
 };
