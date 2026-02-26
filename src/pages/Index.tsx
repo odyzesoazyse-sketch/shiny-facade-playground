@@ -140,7 +140,7 @@ const Footer = () => (
     <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="text-sm font-semibold text-foreground">MinPrice.kz</span>
+          <span className="text-sm font-semibold text-foreground">minprice.kz</span>
           <p className="text-xs text-muted-foreground mt-1 max-w-xs">
             Сравнение цен на продукты среди магазинов Казахстана
           </p>
@@ -152,7 +152,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-border text-center text-[11px] text-muted-foreground">
-        © 2025 MinPrice.kz — Все цены актуальны на момент обновления
+        © 2025 minprice.kz — Все цены актуальны на момент обновления
       </div>
     </div>
   </footer>
