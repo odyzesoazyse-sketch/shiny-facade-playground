@@ -53,7 +53,6 @@ const ProductPage = () => {
       } catch {}
     } else {
       await navigator.clipboard.writeText(url);
-      toast.success("Ссылка скопирована");
     }
   };
 
