@@ -147,8 +147,10 @@ const BottomBar = () => {
 
   return (
     <>
-      {/* Search bar - always visible, positioned above mobile nav */}
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none">
+      {/* Search bar - hides on scroll, reappears on stop */}
+      <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
+        searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      }`}>
         <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
           <form onSubmit={handleSearch} className="py-2">
             <div
