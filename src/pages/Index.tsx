@@ -3,8 +3,7 @@ import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "luci
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import { allProducts, categories } from "@/data/mockProducts";
-import mascot from "@/assets/logo.png";
+import { allProducts } from "@/data/mockProducts";
 
 const categoryEmojis: Record<string, string> = {
   "Сладости": "🍫",
