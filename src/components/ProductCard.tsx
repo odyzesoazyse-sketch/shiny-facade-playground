@@ -42,7 +42,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block bg-card rounded-xl border border-border hover:border-foreground/10 transition-all duration-200 overflow-hidden"
+      className="group block rounded-xl transition-all duration-200 overflow-hidden"
     >
       {/* Image */}
       <div className="relative p-3 pb-0">
