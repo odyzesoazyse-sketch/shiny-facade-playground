@@ -1,5 +1,5 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode } from "lucide-react";
-import { useState } from "react";
+import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode, Moon, Sun } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import logo from "@/assets/logo.png";
@@ -9,7 +9,12 @@ const cities = ["Алматы", "Астана", "Шымкент", "Карага�
 const Header = () => {
   const [selectedCity, setSelectedCity] = useState("Алматы");
   const [cityOpen, setCityOpen] = useState(false);
-  const { totalItems } = useCart();
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  const toggleTheme = () => {
+    document.documentElement.classList.toggle("dark");
+    setIsDark(!isDark);
+  };
 
   return (
     <>
@@ -26,6 +31,14 @@ const Header = () => {
 
             {/* Right side */}
             <div className="flex items-center gap-3">
+              {/* Theme toggle */}
+              <button
+                onClick={toggleTheme}
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+
               {/* City dropdown */}
               <div className="relative">
                 <button
@@ -96,9 +109,25 @@ const placeholders = [
 const BottomSearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { totalItems } = useCart();
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastScrollY.current && y > 80) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,9 +144,11 @@ const BottomSearchBar = () => {
   ];
 
   return (
-    <div className="fixed bottom-10 sm:bottom-6 left-0 right-0 z-50 pointer-events-none">
+    <div className={`fixed bottom-10 sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
+      visible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
+    }`}>
       <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
-        {/* Search bar - ChatGPT/Grok style */}
+        {/* Search bar */}
         <form onSubmit={handleSearch} className="pt-3 pb-2">
           <div
             className={`relative flex items-center gap-2 rounded-3xl bg-card/90 backdrop-blur-xl transition-all duration-200 ${
@@ -150,9 +181,9 @@ const BottomSearchBar = () => {
         </form>
       </div>
 
-      {/* Mobile nav tabs - separate full-width bar */}
+      {/* Mobile nav tabs */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)] pointer-events-auto">
-        <div className="flex items-center justify-around h-10">
+        <div className="flex items-center justify-around h-14">
           {tabs.map((tab) => {
             const isActive =
               tab.to === "/"
@@ -163,14 +194,14 @@ const BottomSearchBar = () => {
               <Link
                 key={tab.label}
                 to={tab.to}
-                className={`relative flex flex-col items-center gap-0.5 px-3 py-0.5 transition-colors ${
+                className={`relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors ${
                   isActive ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
-                <span className="text-[10px]">{tab.label}</span>
+                <tab.icon className="w-5 h-5" />
+                <span className="text-[11px] font-medium">{tab.label}</span>
                 {tab.badge != null && tab.badge > 0 && (
-                  <span className="absolute -top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-foreground text-background text-[9px] font-semibold flex items-center justify-center">
+                  <span className="absolute -top-0.5 right-1 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
                     {tab.badge}
                   </span>
                 )}
