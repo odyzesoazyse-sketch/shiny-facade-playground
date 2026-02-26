@@ -420,7 +420,7 @@ export const allProducts: Product[] = [
     weight: "3кг",
     discountPercent: 42,
     savingsAmount: 2100,
-    category: "Гигиена",
+    category: "Бытовая химия",
     brand: "Persil",
     country: "Германия",
     stores: [
