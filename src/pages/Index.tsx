@@ -1,16 +1,27 @@
-import { useState } from "react";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { useState, useMemo } from "react";
+import { TrendingDown, TrendingUp, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, categories } from "@/data/mockProducts";
+
+const categoryEmojis: Record<string, string> = {
+  "Сладости": "🍫",
+  "Снеки": "🥨",
+  "Морепродукты": "🦀",
+  "Консервы": "🥫",
+  "Молочные": "🥛",
+  "Напитки": "☕",
+  "Бакалея": "🛒",
+  "Гигиена": "🧴",
+  "Полуфабрикаты": "🍜",
+};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<"deals" | "drops">("deals");
 
   const hotDeals = allProducts.filter((p) => p.discountPercent >= 50);
 
-  // Products that actually went UP in price (oldPrice exists and is lower than current in at least one store)
   const priceUps = allProducts.filter((p) =>
     p.priceHistory &&
     p.priceHistory.length >= 2 &&
@@ -21,44 +32,54 @@ const Index = () => {
     })()
   );
 
+  const totalSavings = useMemo(() => {
+    return allProducts.reduce((sum, p) => sum + p.savingsAmount, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background pb-20 sm:pb-0">
       <Header />
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8">
-        {/* Hero — compact, no search (search is in header) */}
-        <section className="mb-5 sm:mb-7">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-1">
-            Сравни цены — купи дешевле
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-lg">
-            Находим лучшие цены на продукты среди Arbuz, Kaspi, MGO и других магазинов Казахстана. Экономьте до 70%.
-          </p>
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        {/* Savings banner */}
+        <section className="mb-4 sm:mb-5 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex items-center gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
+            <Flame className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Экономия до {totalSavings.toLocaleString("ru-RU")} ₸
+            </p>
+            <p className="text-xs text-muted-foreground">
+              на {allProducts.length} товарах среди 5 магазинов
+            </p>
+          </div>
         </section>
 
-        {/* Category chips */}
-        <section className="mb-5 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto">
+        {/* Category chips with emojis */}
+        <section className="mb-5 sm:mb-6 -mx-3 px-3 sm:mx-0 sm:px-0 overflow-x-auto scrollbar-hide">
           <div className="flex gap-1.5 sm:flex-wrap">
             {categories.filter((c) => c !== "Все").map((cat) => (
               <Link
                 key={cat}
                 to={`/search?cat=${encodeURIComponent(cat)}`}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary text-secondary-foreground hover:bg-accent transition-colors whitespace-nowrap flex items-center gap-1.5"
               >
+                <span>{categoryEmojis[cat] || "📦"}</span>
                 {cat}
               </Link>
             ))}
           </div>
         </section>
 
-        {/* Price changes tabs */}
+        {/* Price changes tabs — improved contrast */}
         <section className="mb-8">
-          <div className="flex items-center gap-1 mb-3">
+          <div className="flex items-center gap-1 mb-3 p-0.5 bg-muted rounded-lg w-fit">
             <button
               onClick={() => setActiveTab("deals")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
                 activeTab === "deals"
-                  ? "bg-foreground text-background"
+                  ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -67,9 +88,9 @@ const Index = () => {
             </button>
             <button
               onClick={() => setActiveTab("drops")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-all ${
                 activeTab === "drops"
-                  ? "bg-foreground text-background"
+                  ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
