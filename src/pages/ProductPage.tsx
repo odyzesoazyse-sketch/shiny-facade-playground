@@ -80,7 +80,7 @@ const ProductPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-40 sm:pb-16">
+    <div className="min-h-screen bg-background pb-40 sm:pb-16 sm:pl-16">
       <Header />
 
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8">

@@ -215,7 +215,7 @@ const CatalogPage = () => {
   const { category } = useParams<{ category?: string }>();
 
   return (
-    <div className="min-h-screen bg-background pb-32 sm:pb-16">
+    <div className="min-h-screen bg-background pb-32 sm:pb-16 sm:pl-16">
       <Header />
       {category ? <CategoryDetail /> : <CatalogList />}
     </div>
