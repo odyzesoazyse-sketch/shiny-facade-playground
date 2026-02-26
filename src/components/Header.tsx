@@ -206,7 +206,15 @@ const BottomBar = () => {
             );
           })}
 
-          <CatalogSheet />
+          <Link
+            to="/catalog"
+            className={`relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors ${
+              location.pathname === "/catalog" ? "text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <LayoutGrid className="w-5 h-5" />
+            <span className="text-[11px] font-medium">Каталог</span>
+          </Link>
 
           {tabs.slice(1).map((tab) => {
             const isActive = location.pathname.startsWith(tab.to.split("?")[0]);
