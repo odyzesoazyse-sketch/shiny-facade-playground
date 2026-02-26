@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts, categories } from "@/data/mockProducts";
+import mascot from "@/assets/logo.png";
 
 const categoryEmojis: Record<string, string> = {
   "Сладости": "🍫",
@@ -43,9 +44,7 @@ const Index = () => {
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Savings banner */}
         <section className="mb-4 sm:mb-5 rounded-xl bg-primary/5 border border-primary/10 px-4 py-3 flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
-            <Flame className="w-5 h-5 text-primary" />
-          </div>
+          <img src={mascot} alt="minprice.kz маскот" className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0" />
           <div>
             <p className="text-sm font-semibold text-foreground">
               Экономия до {totalSavings.toLocaleString("ru-RU")} ₸
