@@ -85,7 +85,7 @@ export const allProducts: Product[] = [
     weight: "250г",
     discountPercent: 66,
     savingsAmount: 1937,
-    category: "Морепродукты",
+    category: "Рыба и морепродукты",
     brand: "Vici",
     country: "Литва",
     stores: [
