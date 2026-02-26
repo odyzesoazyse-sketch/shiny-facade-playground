@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp } from "lucide-react";
+import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
