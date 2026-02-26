@@ -224,6 +224,7 @@ export const allProducts: Product[] = [
   {
     id: "9",
     name: "Сахар белый рафинированный 1кг",
+    description: "Белый рафинированный сахар высшей категории. Универсален для выпечки, напитков и консервации.",
     image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=400&fit=crop",
     weight: "1кг",
     discountPercent: 15,
