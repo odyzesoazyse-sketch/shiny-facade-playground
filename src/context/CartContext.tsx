@@ -45,14 +45,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         (i) => i.product.id === product.id && i.store === store
       );
       if (existing) {
-        toast.success(`${product.name}`, { description: `Количество: ${existing.quantity + 1}` });
         return prev.map((i) =>
           i.product.id === product.id && i.store === store
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       }
-      toast.success("Добавлено в корзину", { description: `${product.name} — ${price} ₸` });
       return [...prev, { product, store, price, quantity: 1 }];
     });
   };
