@@ -59,7 +59,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) =>
       prev.filter((i) => !(i.product.id === productId && i.store === store))
     );
-    toast("Товар удалён из корзины");
+    
   };
 
   const updateQuantity = (productId: string, store: string, quantity: number) => {
