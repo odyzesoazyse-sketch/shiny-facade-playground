@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { allProducts } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
+
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
