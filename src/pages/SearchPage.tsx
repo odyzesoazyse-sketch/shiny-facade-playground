@@ -9,9 +9,12 @@ import mascot from "@/assets/logo.png";
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
-  const [selectedCategory, setSelectedCategory] = useState("Все");
+  const categoryParam = searchParams.get("category") || "Все";
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
   const [selectedStore, setSelectedStore] = useState("Все");
-  const [sortBy, setSortBy] = useState<"price" | "discount">("discount");
+  const [sortBy, setSortBy] = useState<"price" | "discount">(
+    searchParams.get("sort") === "discount" ? "discount" : "discount"
+  );
 
   const filteredProducts = useMemo(() => {
     let products = allProducts;
