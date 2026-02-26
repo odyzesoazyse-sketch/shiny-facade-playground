@@ -2,6 +2,7 @@ import { Search, ShoppingCart, MapPin, Home, Tag } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import logo from "@/assets/logo.jpg";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,7 +22,8 @@ const Header = () => {
         <div className="max-w-6xl mx-auto px-3 sm:px-6">
           <div className="flex items-center gap-3 sm:gap-6 h-12 sm:h-14">
             {/* Logo */}
-            <Link to="/" className="shrink-0">
+            <Link to="/" className="shrink-0 flex items-center gap-1.5">
+              <img src={logo} alt="MinPrice.kz" className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover" />
               <span className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
                 MinPrice
               </span>
