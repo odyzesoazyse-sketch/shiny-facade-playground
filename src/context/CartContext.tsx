@@ -78,7 +78,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setItems([]);
-    toast("Корзина очищена");
   };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
