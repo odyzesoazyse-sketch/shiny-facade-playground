@@ -81,20 +81,19 @@ const ProductPage = () => {
 
         {/* Product header — catalog style */}
         <div className="rounded-2xl overflow-hidden mb-4">
-          {/* Image */}
-          <div className="relative p-3 pb-0">
-            <div className="absolute top-2 left-2 z-10 flex gap-1">
-              <span className="discount-badge">-{product.discountPercent}%</span>
-              <span className="savings-badge">-{product.savingsAmount} ₸</span>
-            </div>
-            <div className="aspect-square rounded-lg bg-secondary/50 overflow-hidden max-w-xs mx-auto sm:max-w-sm">
+          {/* Image left, info right */}
+          <div className="flex gap-3 p-3">
+            <div className="relative w-28 h-28 sm:w-40 sm:h-40 shrink-0 rounded-xl overflow-hidden bg-secondary/30">
+              <div className="absolute top-1.5 left-1.5 z-10 flex gap-1">
+                <span className="discount-badge text-[10px]">-{product.discountPercent}%</span>
+                <span className="savings-badge text-[10px]">-{product.savingsAmount} ₸</span>
+              </div>
               <img
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </div>
-          </div>
 
           {/* Price + Name */}
           <div className="px-3 pt-2.5 pb-1.5">
