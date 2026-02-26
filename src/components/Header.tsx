@@ -2,7 +2,9 @@ import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarc
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import { allProducts, categories } from "@/data/mockProducts";
 import logo from "@/assets/logo.png";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const cities = ["Алматы", "Астана"];
 
