@@ -3,7 +3,8 @@ import { TrendingDown, TrendingUp, Flame, ChevronLeft, ChevronRight } from "luci
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import { allProducts } from "@/data/mockProducts";
+import { allProducts, storeNames } from "@/data/mockProducts";
+import StoreLogo from "@/components/StoreLogo";
 
 
 const Index = () => {
