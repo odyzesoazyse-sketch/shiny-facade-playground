@@ -81,12 +81,12 @@ const ProductPage = () => {
         </div>
 
         {/* Product image — full format like catalog */}
-        <div className="relative rounded-2xl overflow-hidden mb-4">
+        <div className="relative rounded-2xl overflow-hidden mb-4 max-w-xs mx-auto sm:max-w-sm">
           <div className="absolute top-3 left-3 z-10 flex gap-1">
             <span className="discount-badge">-{product.discountPercent}%</span>
             <span className="savings-badge">-{product.savingsAmount} ₸</span>
           </div>
-          <div className="aspect-square bg-secondary/50 overflow-hidden">
+          <div className="aspect-square bg-secondary/50 overflow-hidden rounded-2xl">
             <img
               src={product.image}
               alt={product.name}
