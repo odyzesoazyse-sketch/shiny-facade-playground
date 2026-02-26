@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Product } from "@/data/mockProducts";
-import { toast } from "sonner";
+
 
 export interface CartItem {
   product: Product;
@@ -45,14 +45,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         (i) => i.product.id === product.id && i.store === store
       );
       if (existing) {
-        toast.success(`${product.name}`, { description: `Количество: ${existing.quantity + 1}` });
         return prev.map((i) =>
           i.product.id === product.id && i.store === store
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       }
-      toast.success("Добавлено в корзину", { description: `${product.name} — ${price} ₸` });
       return [...prev, { product, store, price, quantity: 1 }];
     });
   };
@@ -61,7 +59,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) =>
       prev.filter((i) => !(i.product.id === productId && i.store === store))
     );
-    toast("Товар удалён из корзины");
+    
   };
 
   const updateQuantity = (productId: string, store: string, quantity: number) => {
@@ -80,7 +78,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setItems([]);
-    toast("Корзина очищена");
   };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
