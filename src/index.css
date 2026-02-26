@@ -7,52 +7,52 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 210 25% 15%;
+    --foreground: 210 40% 12%;
 
-    --card: 160 20% 99%;
-    --card-foreground: 210 25% 15%;
+    --card: 160 35% 98%;
+    --card-foreground: 210 40% 12%;
 
-    --popover: 160 20% 99%;
-    --popover-foreground: 210 25% 15%;
+    --popover: 160 35% 98%;
+    --popover-foreground: 210 40% 12%;
 
-    --primary: 195 60% 52%;
+    --primary: 195 85% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 25% 94%;
-    --secondary-foreground: 210 25% 15%;
+    --secondary: 160 40% 93%;
+    --secondary-foreground: 210 40% 12%;
 
-    --muted: 160 20% 94%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 160 35% 93%;
+    --muted-foreground: 210 18% 45%;
 
-    --accent: 170 30% 92%;
-    --accent-foreground: 210 25% 15%;
+    --accent: 170 45% 90%;
+    --accent-foreground: 210 40% 12%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 90% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 170 20% 90%;
-    --input: 170 20% 90%;
-    --ring: 195 60% 52%;
+    --border: 170 35% 88%;
+    --input: 170 35% 88%;
+    --ring: 195 85% 48%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --discount-bg: 0 84% 60%;
+    --discount-bg: 0 90% 55%;
     --discount-foreground: 0 0% 100%;
-    --savings-bg: 160 55% 42%;
+    --savings-bg: 160 75% 38%;
     --savings-foreground: 0 0% 100%;
-    --price-old: 210 10% 55%;
-    --price-new: 210 25% 15%;
-    --surface-hover: 160 25% 96%;
+    --price-old: 210 18% 55%;
+    --price-new: 210 40% 12%;
+    --surface-hover: 160 40% 95%;
 
-    --sidebar-background: 160 20% 97%;
-    --sidebar-foreground: 210 15% 30%;
-    --sidebar-primary: 195 60% 52%;
+    --sidebar-background: 160 35% 96%;
+    --sidebar-foreground: 210 25% 25%;
+    --sidebar-primary: 195 85% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 25% 93%;
-    --sidebar-accent-foreground: 210 25% 15%;
-    --sidebar-border: 170 20% 90%;
-    --sidebar-ring: 195 60% 52%;
+    --sidebar-accent: 170 40% 91%;
+    --sidebar-accent-foreground: 210 40% 12%;
+    --sidebar-border: 170 35% 88%;
+    --sidebar-ring: 195 85% 48%;
   }
 
   .dark {
