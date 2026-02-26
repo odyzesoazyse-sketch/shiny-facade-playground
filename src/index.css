@@ -45,13 +45,13 @@
     --price-new: 210 40% 12%;
     --surface-hover: 210 15% 95%;
 
-    --sidebar-background: 160 35% 96%;
+    --sidebar-background: 210 10% 96%;
     --sidebar-foreground: 210 25% 25%;
     --sidebar-primary: 195 85% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 40% 91%;
+    --sidebar-accent: 210 15% 91%;
     --sidebar-accent-foreground: 210 40% 12%;
-    --sidebar-border: 170 35% 88%;
+    --sidebar-border: 210 15% 88%;
     --sidebar-ring: 195 85% 48%;
   }
 
