@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Plus, Share2, Tag, Globe } from "lucide-react";
+import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
