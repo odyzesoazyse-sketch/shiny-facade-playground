@@ -10,7 +10,6 @@ const navItems = [
   { to: "/", icon: Home, label: "Главная", matchExact: true },
   { to: "/catalog", icon: LayoutGrid, label: "Каталог" },
   { to: "/search?sort=discount", icon: Tag, label: "Скидки" },
-  { to: "/cart", icon: ShoppingCart, label: "Корзина", hasBadge: true },
 ];
 
 const Header = () => {
