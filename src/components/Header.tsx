@@ -201,11 +201,6 @@ const BottomBar = () => {
               >
                 <item.icon className="w-5 h-5" />
                 <span className="text-[11px] font-medium">{item.label}</span>
-                {item.hasBadge && totalItems > 0 && (
-                  <span className="absolute -top-0.5 right-1 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
               </Link>
             );
           })}
