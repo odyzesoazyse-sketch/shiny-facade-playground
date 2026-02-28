@@ -12,15 +12,15 @@ export const apiClient = {
 
 export const API_ENDPOINTS = {
   search: (query: string, cityId?: number) =>
-    `/search/?q=${encodeURIComponent(query)}${cityId ? `&city=${cityId}` : ''}`,
-  bestDeals: (cityId?: number) => `/best-deals/${cityId ? `?city=${cityId}` : ''}`,
-  discounts: (cityId?: number) => `/discounts/${cityId ? `?city=${cityId}` : ''}`,
+    `/search/?q=${encodeURIComponent(query)}${cityId ? `&city_id=${cityId}` : ''}`,
+  bestDeals: (cityId?: number) => `/best-deals/${cityId ? `?city_id=${cityId}` : ''}`,
+  discounts: (cityId?: number) => `/discounts/${cityId ? `?city_id=${cityId}` : ''}`,
   product: (uuid: string, cityId?: number) =>
-    `/products/${uuid}/${cityId ? `?city=${cityId}` : ''}`,
+    `/products/${uuid}/${cityId ? `?city_id=${cityId}` : ''}`,
   priceHistory: (uuid: string, cityId?: number) =>
-    `/products/${uuid}/price-history/${cityId ? `?city=${cityId}` : ''}`,
-  priceDrops: (cityId?: number) => `/price-drops/${cityId ? `?city=${cityId}` : ''}`,
-  priceIncreases: (cityId?: number) => `/price-increases/${cityId ? `?city=${cityId}` : ''}`,
+    `/products/${uuid}/price-history/${cityId ? `?city_id=${cityId}` : ''}`,
+  priceDrops: (cityId?: number) => `/price-drops/${cityId ? `?city_id=${cityId}` : ''}`,
+  priceIncreases: (cityId?: number) => `/price-increases/${cityId ? `?city_id=${cityId}` : ''}`,
   cities: () => '/cities/',
   chains: () => '/chains/',
 } as const;

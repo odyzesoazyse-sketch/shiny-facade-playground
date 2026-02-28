@@ -40,19 +40,19 @@ All product endpoints now accept optional `cityId` parameter:
 bestDeals: () => '/best-deals/'
 
 // After
-bestDeals: (cityId?: number) => `/best-deals/${cityId ? `?city=${cityId}` : ''}`
+bestDeals: (cityId?: number) => `/best-deals/${cityId ? `?city_id=${cityId}` : ''}`
 ```
 
 **Updated Endpoints:**
-- ✅ `/search/?q={query}&city={cityId}`
-- ✅ `/best-deals/?city={cityId}`
-- ✅ `/discounts/?city={cityId}`
-- ✅ `/products/{uuid}/?city={cityId}`
-- ✅ `/products/{uuid}/price-history/?city={cityId}`
-- ✅ `/price-drops/?city={cityId}`
-- ✅ `/price-increases/?city={cityId}`
+- ✅ `/search/?q={query}&city_id={cityId}`
+- ✅ `/best-deals/?city_id={cityId}`
+- ✅ `/discounts/?city_id={cityId}`
+- ✅ `/products/{uuid}/?city_id={cityId}`
+- ✅ `/products/{uuid}/price-history/?city_id={cityId}`
+- ✅ `/price-drops/?city_id={cityId}`
+- ✅ `/price-increases/?city_id={cityId}`
 
-**Note**: The API parameter is `city` but it accepts the numeric city ID (e.g., `city=1` for Almaty)
+**Note**: The API parameter is `city_id` and accepts the numeric city ID (e.g., `city_id=1` for Almaty)
 
 ### 4. Updated React Query Hooks
 **File**: `src/hooks/useApi.ts`
@@ -142,17 +142,17 @@ UI updates with city-specific data
 
 **Best Deals for Almaty:**
 ```
-GET https://minprice.xyz/api/best-deals/?city=almaty
+GET https://minprice.xyz/api/best-deals/?city_id=1
 ```
 
 **Search in Astana:**
 ```
-GET https://minprice.xyz/api/search/?q=молоко&city=astana
+GET https://minprice.xyz/api/search/?q=молоко&city_id=2
 ```
 
 **Product in Almaty:**
 ```
-GET https://minprice.xyz/api/products/{uuid}/?city=almaty
+GET https://minprice.xyz/api/products/{uuid}/?city_id=1
 ```
 
 ### Response
@@ -168,12 +168,12 @@ API returns city-specific product data:
 curl "https://minprice.xyz/api/cities/"
 # Returns: {"cities":[{"id":1,"name":"Алматы","slug":"almaty"},{"id":2,"name":"Астана","slug":"astana"}]}
 
-# Test best deals with city
-curl "https://minprice.xyz/api/best-deals/?city=almaty"
+# Test best deals with city_id
+curl "https://minprice.xyz/api/best-deals/?city_id=1"
 # Returns city-specific deals
 
-# Test search with city
-curl "https://minprice.xyz/api/search/?q=молоко&city=almaty"
+# Test search with city_id
+curl "https://minprice.xyz/api/search/?q=молоко&city_id=1"
 # Returns city-specific search results
 ```
 
@@ -191,16 +191,16 @@ curl "https://minprice.xyz/api/search/?q=молоко&city=almaty"
 
 ## Query Key Strategy
 
-Each API call includes the city in its query key for proper caching:
+Each API call includes the city ID in its query key for proper caching:
 
 ```typescript
 // Search query keys
-['search', query, 'almaty']
-['search', query, 'astana']
+['search', query, 1]  // Almaty
+['search', query, 2]  // Astana
 
 // Best deals query keys
-['bestDeals', 'almaty']
-['bestDeals', 'astana']
+['bestDeals', 1]  // Almaty
+['bestDeals', 2]  // Astana
 ```
 
 This ensures:
