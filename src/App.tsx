@@ -10,6 +10,8 @@ import ProductPage from "./pages/ProductPage";
 import SearchPage from "./pages/SearchPage";
 import CatalogPage from "./pages/CatalogPage";
 import CartPage from "./pages/CartPage";
+import CartHistoryPage from "./pages/CartHistoryPage";
+import SharedCartPage from "./pages/SharedCartPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,8 @@ const App = () => (
               <Route path="/catalog/:category" element={<CatalogPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/cart-history" element={<CartHistoryPage />} />
+              <Route path="/cart/:uuid" element={<SharedCartPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
