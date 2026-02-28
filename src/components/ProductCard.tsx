@@ -91,7 +91,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             return (
               <div key={store.store} className="flex items-center justify-between text-[11px] h-[18px]">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <StoreLogo store={store.store} size="sm" />
+                  <StoreLogo store={store.store} size="sm" logoUrl={store.storeImage} />
                   <span className="text-muted-foreground truncate">{store.store}</span>
                   {isBest && product.stores.length > 1 && (
                     <span className="best-price-label">min</span>
