@@ -36,7 +36,7 @@ const ProductPage = () => {
   const bestPrice = bestStore?.price ?? 0;
   const worstPrice = product ? Math.max(...product.stores.map((s) => s.oldPrice || s.price)) : 0;
 
-  const cartItem = items.find((i) => i.product.id === id);
+  const cartItem = items.find((i) => i.product.uuid === id);
   const quantity = cartItem?.quantity || 0;
 
   const chartData = useMemo(() => {
@@ -92,24 +92,24 @@ const ProductPage = () => {
   }
 
   const handleAdd = () => {
-    addItem(product, bestStore.store, bestStore.price);
+    addItem(product.id, 1);
   };
 
   const handleIncrement = () => {
-    if (cartItem) updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity + 1);
+    if (cartItem) updateQuantity(cartItem.product.uuid, cartItem.quantity + 1);
   };
 
   const handleDecrement = () => {
     if (cartItem) {
-      if (cartItem.quantity <= 1) removeItem(cartItem.product.id, cartItem.store);
-      else updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
+      if (cartItem.quantity <= 1) removeItem(cartItem.product.uuid);
+      else updateQuantity(cartItem.product.uuid, cartItem.quantity - 1);
     }
   };
   const handleShare = async () => {
     const url = window.location.href;
     const text = `${product.name} — от ${bestPrice} ₸ на minprice.kz`;
     if (navigator.share) {
-      try { await navigator.share({ title: product.name, text, url }); } catch {}
+      try { await navigator.share({ title: product.name, text, url }); } catch { }
     } else {
       await navigator.clipboard.writeText(url);
     }
@@ -243,11 +243,10 @@ const ProductPage = () => {
                 <button
                   key={period}
                   onClick={() => setHistoryPeriod(period)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    historyPeriod === period
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${historyPeriod === period
                       ? "bg-foreground text-background"
                       : "bg-secondary text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {period}д
                 </button>
