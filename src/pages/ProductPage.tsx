@@ -4,9 +4,10 @@ import { ArrowLeft, Plus, Minus, Share2, Tag, Globe } from "lucide-react";
 import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
+import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
-import { useProduct, usePriceHistory } from "@/hooks/useApi";
-import { transformProduct } from "@/lib/transformers";
+import { useProduct, usePriceHistory, useBestDeals } from "@/hooks/useApi";
+import { transformProduct, transformProducts } from "@/lib/transformers";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,56 +17,50 @@ const ProductPage = () => {
   // Fetch product data from API
   const { data: productData, isLoading: isLoadingProduct } = useProduct(id || "");
   const { data: priceHistoryData, isLoading: isLoadingHistory } = usePriceHistory(id || "");
+  const { data: bestDealsData } = useBestDeals();
 
   const product = useMemo(() => {
     if (!productData) return null;
     return transformProduct(productData);
   }, [productData]);
 
+  const similarProducts = useMemo(() => {
+    if (!product || !bestDealsData?.deals) return [];
+    const allProducts = transformProducts(bestDealsData.deals);
+    return allProducts
+      .filter((p) => p.id !== product.id && p.category === product.category)
+      .slice(0, 4);
+  }, [product, bestDealsData]);
+
   const bestStore = product ? product.stores.reduce((a, b) => (a.price < b.price ? a : b)) : null;
   const bestPrice = bestStore?.price ?? 0;
   const worstPrice = product ? Math.max(...product.stores.map((s) => s.oldPrice || s.price)) : 0;
 
-  const cartItem = items.find((i) => i.product.id === id);
+  const cartItem = items.find((i) => i.product.uuid === id);
   const quantity = cartItem?.quantity || 0;
 
   const chartData = useMemo(() => {
-    if (!priceHistoryData?.stores || priceHistoryData.stores.length === 0) return [];
+    if (!priceHistoryData?.history || priceHistoryData.history.length === 0) return [];
     const now = new Date();
     const daysBack = parseInt(historyPeriod);
     const cutoff = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
 
     // Group history by date and chain
     const groupedByDate: Record<string, Record<string, number>> = {};
-
-    priceHistoryData.stores.forEach((storeHistory) => {
-      // API 'store_name' matches 'storeName' in product stores
-      const matchedStore = product?.stores.find((s) => s.storeName === storeHistory.store_name);
-      // fallback to storeName if we can't find a match (but Recharts will expect the 'store' key, which is chain_name)
-      const chainNameKey = matchedStore ? matchedStore.store : storeHistory.store_name;
-
-      storeHistory.prices
-        .filter((point) => new Date(point.date) >= cutoff)
-        .forEach((point) => {
-          if (!groupedByDate[point.date]) {
-            groupedByDate[point.date] = {};
-          }
-          groupedByDate[point.date][chainNameKey] = point.price;
-        });
-    });
-
-    return Object.entries(groupedByDate)
-      .map(([date, prices]) => ({
-        date: new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
-        ...prices,
-      }))
-      .sort((a, b) => {
-        // Simple string sort won't work perfectly on locales, but prices are normally chronological
-        // We can parse back to a rough date or sort the dates directly.
-        // Actually the API returns dates formatted, so sorting the raw keys works best:
-        return 0; // We will sort before conversion below
+    priceHistoryData.history
+      .filter((point) => new Date(point.date) >= cutoff)
+      .forEach((point) => {
+        if (!groupedByDate[point.date]) {
+          groupedByDate[point.date] = {};
+        }
+        groupedByDate[point.date][point.chain_name] = point.price;
       });
-  }, [priceHistoryData, historyPeriod, product]);
+
+    return Object.entries(groupedByDate).map(([date, prices]) => ({
+      date: new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
+      ...prices,
+    }));
+  }, [priceHistoryData, historyPeriod]);
 
   if (isLoadingProduct) {
     return (
@@ -97,17 +92,17 @@ const ProductPage = () => {
   }
 
   const handleAdd = () => {
-    addItem(product, bestStore.store, bestStore.price);
+    addItem(product.id, 1);
   };
 
   const handleIncrement = () => {
-    if (cartItem) updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity + 1);
+    if (cartItem) updateQuantity(cartItem.product.uuid, cartItem.quantity + 1);
   };
 
   const handleDecrement = () => {
     if (cartItem) {
-      if (cartItem.quantity <= 1) removeItem(cartItem.product.id, cartItem.store);
-      else updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
+      if (cartItem.quantity <= 1) removeItem(cartItem.product.uuid);
+      else updateQuantity(cartItem.product.uuid, cartItem.quantity - 1);
     }
   };
   const handleShare = async () => {
@@ -185,39 +180,22 @@ const ProductPage = () => {
           )}
 
           {/* Store prices */}
-          <div className="px-3 py-1.5 space-y-2 border-t border-border">
+          <div className="px-3 py-1.5 space-y-1 border-t border-border">
             {product.stores.map((store) => {
               const isBest = store.price === bestPrice;
               return (
-                <div key={store.store} className="space-y-1">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <StoreLogo store={store.store} size="sm" />
-                      <span className="text-muted-foreground truncate">{store.store}</span>
-                      {isBest && product.stores.length > 1 && <span className="best-price-label">min</span>}
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {store.oldPrice && <span className="line-through text-muted-foreground/60">{store.oldPrice}</span>}
-                      <span className={`font-medium ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
-                        {store.price} ₸
-                      </span>
-                    </div>
+                <div key={store.store} className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <StoreLogo store={store.store} size="sm" />
+                    <span className="text-muted-foreground truncate">{store.store}</span>
+                    {isBest && product.stores.length > 1 && <span className="best-price-label">min</span>}
                   </div>
-                  {store.extProductTitle && (
-                    <div className="flex items-start gap-2 pl-6">
-                      {store.extProductImage && (
-                        <img
-                          src={store.extProductImage}
-                          alt={store.extProductTitle}
-                          className="w-12 h-12 rounded object-cover shrink-0 bg-secondary/30"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      )}
-                      <div className="text-[11px] text-muted-foreground/80 leading-snug flex-1 min-w-0">
-                        {store.extProductTitle}
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {store.oldPrice && <span className="line-through text-muted-foreground/60">{store.oldPrice}</span>}
+                    <span className={`font-medium ${isBest ? "text-foreground" : "text-muted-foreground"}`}>
+                      {store.price} ₸
+                    </span>
+                  </div>
                 </div>
               );
             })}
@@ -256,7 +234,7 @@ const ProductPage = () => {
         </div>
 
         {/* Price History Chart */}
-        {priceHistoryData?.stores && priceHistoryData.stores.length > 0 && (
+        {product.priceHistory && product.priceHistory.length > 0 && (
           <div className="bg-card rounded-2xl p-4 sm:p-6 mb-4">
             <h2 className="text-base font-semibold text-foreground mb-4">История цен</h2>
 
@@ -266,8 +244,8 @@ const ProductPage = () => {
                   key={period}
                   onClick={() => setHistoryPeriod(period)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${historyPeriod === period
-                    ? "bg-foreground text-background"
-                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background"
+                      : "bg-secondary text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {period}д
@@ -298,6 +276,17 @@ const ProductPage = () => {
           </div>
         )}
 
+        {/* Similar products */}
+        {similarProducts.length > 0 && (
+          <section className="mt-6">
+            <h2 className="text-base font-semibold text-foreground mb-3">Похожие товары</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+              {similarProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

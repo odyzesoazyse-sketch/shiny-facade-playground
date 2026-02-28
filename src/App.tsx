@@ -11,6 +11,8 @@ import SearchPage from "./pages/SearchPage";
 import CatalogPage from "./pages/CatalogPage";
 import CartPage from "./pages/CartPage";
 import DiscountsPage from "./pages/DiscountsPage";
+import CartHistoryPage from "./pages/CartHistoryPage";
+import SharedCartPage from "./pages/SharedCartPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
               <Route path="/search" element={<SearchPage />} />
               <Route path="/discounts" element={<DiscountsPage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/cart-history" element={<CartHistoryPage />} />
+              <Route path="/cart/:uuid" element={<SharedCartPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
