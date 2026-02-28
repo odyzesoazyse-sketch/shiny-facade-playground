@@ -5,21 +5,32 @@ import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
-import { allProducts } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
+import { useProduct, usePriceHistory, useBestDeals } from "@/hooks/useApi";
+import { transformProduct, transformProducts } from "@/lib/transformers";
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { items, addItem, updateQuantity, removeItem } = useCart();
   const [historyPeriod, setHistoryPeriod] = useState<"7" | "30" | "90" | "180">("90");
-  const product = allProducts.find((p) => p.id === id);
+
+  // Fetch product data from API
+  const { data: productData, isLoading: isLoadingProduct } = useProduct(id || "");
+  const { data: priceHistoryData, isLoading: isLoadingHistory } = usePriceHistory(id || "");
+  const { data: bestDealsData } = useBestDeals();
+
+  const product = useMemo(() => {
+    if (!productData) return null;
+    return transformProduct(productData);
+  }, [productData]);
 
   const similarProducts = useMemo(() => {
-    if (!product) return [];
+    if (!product || !bestDealsData?.deals) return [];
+    const allProducts = transformProducts(bestDealsData.deals);
     return allProducts
       .filter((p) => p.id !== product.id && p.category === product.category)
       .slice(0, 4);
-  }, [product]);
+  }, [product, bestDealsData]);
 
   const bestStore = product ? product.stores.reduce((a, b) => (a.price < b.price ? a : b)) : null;
   const bestPrice = bestStore?.price ?? 0;
@@ -29,17 +40,42 @@ const ProductPage = () => {
   const quantity = cartItem?.quantity || 0;
 
   const chartData = useMemo(() => {
-    if (!product?.priceHistory || product.priceHistory.length === 0) return [];
+    if (!priceHistoryData?.history || priceHistoryData.history.length === 0) return [];
     const now = new Date();
     const daysBack = parseInt(historyPeriod);
     const cutoff = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-    return product.priceHistory
+
+    // Group history by date and chain
+    const groupedByDate: Record<string, Record<string, number>> = {};
+    priceHistoryData.history
       .filter((point) => new Date(point.date) >= cutoff)
-      .map((point) => ({
-        date: new Date(point.date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
-        ...point.prices,
-      }));
-  }, [product?.priceHistory, historyPeriod]);
+      .forEach((point) => {
+        if (!groupedByDate[point.date]) {
+          groupedByDate[point.date] = {};
+        }
+        groupedByDate[point.date][point.chain_name] = point.price;
+      });
+
+    return Object.entries(groupedByDate).map(([date, prices]) => ({
+      date: new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
+      ...prices,
+    }));
+  }, [priceHistoryData, historyPeriod]);
+
+  if (isLoadingProduct) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-secondary/50 rounded w-1/3"></div>
+            <div className="h-64 bg-secondary/50 rounded"></div>
+            <div className="h-32 bg-secondary/50 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product || !bestStore) {
     return (

@@ -4,11 +4,14 @@ interface StoreLogoProps {
   store: string;
   size?: "sm" | "md";
   className?: string;
+  logoUrl?: string; // Optional logo URL from API
 }
 
-const StoreLogo = ({ store, size = "sm", className = "" }: StoreLogoProps) => {
-  const logo = getStoreLogo(store);
+const StoreLogo = ({ store, size = "sm", className = "", logoUrl }: StoreLogoProps) => {
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
+
+  // Prefer API logo URL, fallback to local mapping
+  const logo = logoUrl || getStoreLogo(store);
 
   if (logo) {
     return (
