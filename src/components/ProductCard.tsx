@@ -4,31 +4,37 @@ import { Product } from "@/data/mockProducts";
 import { useCart } from "@/context/CartContext";
 import StoreLogo from "@/components/StoreLogo";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const MAX_STORES_DISPLAY = 3; // ensure consistent height
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { items, addItem, updateQuantity, removeItem } = useCart();
+  const { toast } = useToast();
   const bestStore = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
   const worstPrice = Math.max(...product.stores.map((s) => s.oldPrice || s.price));
   const [justAdded, setJustAdded] = useState(false);
 
-  const cartItem = items.find((i) => i.product.id === product.id);
+  const cartItem = items.find((i) => i.product.uuid === product.id);
   const quantity = cartItem?.quantity || 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem(product, bestStore.store, bestStore.price);
+    addItem(product.id, 1);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 600);
+    toast({
+      title: "Добавлено в корзину",
+      description: product.name,
+    });
   };
 
   const handleIncrement = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (cartItem) {
-      updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity + 1);
+      updateQuantity(cartItem.product.uuid, cartItem.quantity + 1);
     }
   };
 
@@ -37,9 +43,9 @@ const ProductCard = ({ product }: { product: Product }) => {
     e.stopPropagation();
     if (cartItem) {
       if (cartItem.quantity <= 1) {
-        removeItem(cartItem.product.id, cartItem.store);
+        removeItem(cartItem.product.uuid);
       } else {
-        updateQuantity(cartItem.product.id, cartItem.store, cartItem.quantity - 1);
+        updateQuantity(cartItem.product.uuid, cartItem.quantity - 1);
       }
     }
   };
@@ -91,7 +97,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             return (
               <div key={store.store} className="flex items-center justify-between text-[11px] h-[18px]">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <StoreLogo store={store.store} size="sm" />
+                  <StoreLogo store={store.store} size="sm" logoUrl={store.storeImage} />
                   <span className="text-muted-foreground truncate">{store.store}</span>
                   {isBest && product.stores.length > 1 && (
                     <span className="best-price-label">min</span>
@@ -122,9 +128,8 @@ const ProductCard = ({ product }: { product: Product }) => {
         {quantity === 0 ? (
           <button
             onClick={handleAdd}
-            className={`w-full h-9 rounded-xl border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.96] transition-all duration-200 ${
-              justAdded ? "animate-cart-pop bg-primary text-primary-foreground border-primary" : ""
-            }`}
+            className={`w-full h-9 rounded-xl border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.96] transition-all duration-200 ${justAdded ? "animate-cart-pop bg-primary text-primary-foreground border-primary" : ""
+              }`}
           >
             <Plus className="w-3.5 h-3.5" />
             Добавить

@@ -1,11 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Header from "@/components/Header";
 import CategorySidebar from "@/components/CategorySidebar";
 import ProductCard from "@/components/ProductCard";
-import { allProducts, categories, storeNames } from "@/data/mockProducts";
+import { categories } from "@/data/mockProducts";
 import mascot from "@/assets/logo.png";
+import { useSearch, useBestDeals, useChains } from "@/hooks/useApi";
+import { transformProducts } from "@/lib/transformers";
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
@@ -17,13 +19,23 @@ const SearchPage = () => {
     searchParams.get("sort") === "discount" ? "discount" : "discount"
   );
 
+  // Use search API when query is present, otherwise show best deals
+  const { data: searchData, isLoading: isSearchLoading } = useSearch(query);
+  const { data: bestDealsData, isLoading: isBestDealsLoading } = useBestDeals();
+  const { data: chainsData } = useChains();
+
+  const allProducts = useMemo(() => {
+    if (query && searchData?.hits) {
+      return transformProducts(searchData.hits);
+    }
+    if (!query && bestDealsData?.deals) {
+      return transformProducts(bestDealsData.deals);
+    }
+    return [];
+  }, [query, searchData, bestDealsData]);
+
   const filteredProducts = useMemo(() => {
     let products = allProducts;
-
-    if (query) {
-      const q = query.toLowerCase();
-      products = products.filter((p) => p.name.toLowerCase().includes(q));
-    }
 
     if (selectedCategory !== "Все") {
       products = products.filter((p) => p.category === selectedCategory);
@@ -48,7 +60,9 @@ const SearchPage = () => {
     }
 
     return products;
-  }, [query, selectedCategory, selectedStore, sortBy]);
+  }, [allProducts, selectedCategory, selectedStore, sortBy]);
+
+  const isLoading = query ? isSearchLoading : isBestDealsLoading;
 
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-16">
@@ -106,14 +120,20 @@ const SearchPage = () => {
               className="flex-1 text-xs bg-secondary rounded-lg px-2.5 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring/20"
             >
               <option value="Все">Все магазины</option>
-              {storeNames.map((s) => (
-                <option key={s} value={s}>{s}</option>
+              {chainsData?.chains.map((chain) => (
+                <option key={chain.id} value={chain.name}>{chain.name}</option>
               ))}
             </select>
           </div>
 
           {/* Products */}
-          {filteredProducts.length > 0 ? (
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-[400px] rounded-xl bg-secondary/50 animate-pulse" />
+              ))}
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />

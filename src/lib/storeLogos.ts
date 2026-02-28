@@ -7,6 +7,7 @@ import smallLogo from "@/assets/stores/small.png";
 export const storeLogos: Record<string, string> = {
   "MGO": magnumLogo,
   "Magnum": magnumLogo,
+  "MagnumGO": magnumLogo,
   "Airba Fresh": airbaFreshLogo,
   "A-Store ADK": astoreLogo,
   "Arbuz": arbuzLogo,

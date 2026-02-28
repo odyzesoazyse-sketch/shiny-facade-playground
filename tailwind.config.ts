@@ -93,12 +93,23 @@ export default {
           "0%": { transform: "scaleX(0.8)", opacity: "0" },
           "100%": { transform: "scaleX(1)", opacity: "1" },
         },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "slide-out-left": {
+          "0%": { transform: "translateX(0)", opacity: "1", maxHeight: "200px" },
+          "50%": { transform: "translateX(-100%)", opacity: "0", maxHeight: "200px" },
+          "100%": { transform: "translateX(-100%)", opacity: "0", maxHeight: "0", padding: "0", margin: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "cart-pop": "cart-pop 0.4s ease-out",
         "scale-in": "scale-in 0.25s ease-out",
+        "shimmer": "shimmer 3s ease-in-out infinite",
+        "slide-out-left": "slide-out-left 0.4s ease-out forwards",
       },
     },
   },
