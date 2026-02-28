@@ -58,7 +58,7 @@ const CartPage = () => {
     setStrategy(strat);
     uniqueProducts.forEach(({ product, quantity }) => {
       let targetStore: { store: string; price: number } | undefined;
-      if (strat === "optimal") {
+      if (strat === "optimal" && product.stores?.length > 0) {
         const best = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
         targetStore = { store: best.store, price: best.price };
       } else {
@@ -234,11 +234,10 @@ const CartPage = () => {
                                 switchStore(product.id, s.store, s.price);
                                 setStrategy("optimal");
                               }}
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-colors ${
-                                s.isCurrent
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-colors ${s.isCurrent
                                   ? "bg-foreground text-background font-medium"
                                   : "bg-secondary text-muted-foreground hover:text-foreground"
-                              }`}
+                                }`}
                             >
                               <span
                                 className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -373,11 +372,10 @@ const StrategyOption = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${
-      disabled ? "opacity-40 cursor-not-allowed"
+    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${disabled ? "opacity-40 cursor-not-allowed"
         : isActive ? "bg-foreground text-background"
-        : "bg-secondary/60 hover:bg-secondary text-foreground"
-    }`}
+          : "bg-secondary/60 hover:bg-secondary text-foreground"
+      }`}
   >
     <div className="shrink-0 flex items-center justify-center w-5 h-5">{icon}</div>
     <div className="flex-1 min-w-0">

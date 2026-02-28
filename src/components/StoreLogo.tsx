@@ -10,8 +10,15 @@ interface StoreLogoProps {
 const StoreLogo = ({ store, size = "sm", className = "", logoUrl }: StoreLogoProps) => {
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
 
+  // Resolve logo URL: prepend base domain + /media/ for relative API paths
+  const resolvedLogoUrl = logoUrl
+    ? logoUrl.startsWith("http")
+      ? logoUrl
+      : `https://minprice.xyz/media/${logoUrl.replace(/^\/+/, '')}`
+    : null;
+
   // Prefer API logo URL, fallback to local mapping
-  const logo = logoUrl || getStoreLogo(store);
+  const logo = resolvedLogoUrl || getStoreLogo(store);
 
   if (logo) {
     return (

@@ -9,8 +9,11 @@ const MAX_STORES_DISPLAY = 3; // ensure consistent height
 
 const ProductCard = ({ product }: { product: Product }) => {
   const { items, addItem, updateQuantity, removeItem } = useCart();
+  if (!product.stores || product.stores.length === 0) return null;
+
   const bestStore = product.stores.reduce((a, b) => (a.price < b.price ? a : b));
-  const worstPrice = Math.max(...product.stores.map((s) => s.oldPrice || s.price));
+  // The 'worstPrice' (reference price) aligns with the robust robust calculation done in transformers.
+  const worstPrice = bestStore.price + (product.savingsAmount || 0);
   const [justAdded, setJustAdded] = useState(false);
 
   const cartItem = items.find((i) => i.product.id === product.id);
@@ -56,8 +59,12 @@ const ProductCard = ({ product }: { product: Product }) => {
       {/* Image */}
       <div className="relative p-3 pb-0">
         <div className="absolute top-2 left-2 z-10 flex gap-1">
-          <span className="discount-badge">-{product.discountPercent}%</span>
-          <span className="savings-badge">-{product.savingsAmount} ₸</span>
+          {product.discountPercent > 0 && (
+            <span className="discount-badge">-{product.discountPercent}%</span>
+          )}
+          {product.savingsAmount > 0 && (
+            <span className="savings-badge">-{product.savingsAmount} ₸</span>
+          )}
         </div>
         <div className="aspect-square rounded-lg bg-secondary/50 overflow-hidden">
           <img
@@ -122,9 +129,8 @@ const ProductCard = ({ product }: { product: Product }) => {
         {quantity === 0 ? (
           <button
             onClick={handleAdd}
-            className={`w-full h-9 rounded-xl border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.96] transition-all duration-200 ${
-              justAdded ? "animate-cart-pop bg-primary text-primary-foreground border-primary" : ""
-            }`}
+            className={`w-full h-9 rounded-xl border border-primary text-primary text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-primary/5 active:scale-[0.96] transition-all duration-200 ${justAdded ? "animate-cart-pop bg-primary text-primary-foreground border-primary" : ""
+              }`}
           >
             <Plus className="w-3.5 h-3.5" />
             Добавить
