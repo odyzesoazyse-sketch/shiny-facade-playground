@@ -1,12 +1,15 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, X, ArrowUpDown } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import StoreLogo from "@/components/StoreLogo";
 import mascot from "@/assets/logo.png";
 import { useSearch, useBestDeals, useChains } from "@/hooks/useApi";
 import { transformProducts } from "@/lib/transformers";
+
+const PRODUCTS_PER_PAGE = 24;
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,7 +22,10 @@ const SearchPage = () => {
     sortParam === "price" ? "price" : "discount"
   );
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [page, setPage] = useState(1);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { ref: bottomRef, inView } = useInView({ threshold: 0 });
 
   // Auto-focus input when visiting /search without query
   useEffect(() => {
@@ -32,6 +38,18 @@ const SearchPage = () => {
   useEffect(() => {
     setInputValue(query);
   }, [query]);
+
+  // Reset page when query, filters or sort changes
+  useEffect(() => {
+    setPage(1);
+  }, [query, selectedChainIds, sortBy]);
+
+  // Load next page when sentinel enters viewport
+  useEffect(() => {
+    if (inView) {
+      setPage((prev) => prev + 1);
+    }
+  }, [inView]);
 
   // API hooks — pass chainIds to backend for server-side filtering
   const { data: searchData, isLoading: isSearchLoading } = useSearch(
@@ -90,6 +108,13 @@ const SearchPage = () => {
     return products;
   }, [allProducts, sortBy]);
 
+  // Slice for pagination
+  const displayedProducts = useMemo(() => {
+    return sortedProducts.slice(0, page * PRODUCTS_PER_PAGE);
+  }, [sortedProducts, page]);
+
+  const hasMore = displayedProducts.length < sortedProducts.length;
+
   const isLoading = query ? isSearchLoading : isBestDealsLoading;
 
   return (
@@ -132,8 +157,8 @@ const SearchPage = () => {
                   onClick={() => toggleChain(chain.id)}
                   title={chain.name}
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all border-2 ${isActive
-                      ? "border-primary bg-primary/10 shadow-[0_0_8px_hsl(var(--primary)/0.3)] scale-110"
-                      : "border-border bg-card hover:border-foreground/30 opacity-60 hover:opacity-100"
+                    ? "border-primary bg-primary/10 shadow-[0_0_8px_hsl(var(--primary)/0.3)] scale-110"
+                    : "border-border bg-card hover:border-foreground/30 opacity-60 hover:opacity-100"
                     }`}
                 >
                   <StoreLogo store={chain.name} logoUrl={chain.logo} size="md" />
@@ -160,7 +185,12 @@ const SearchPage = () => {
             </h1>
             {!isLoading && (
               <p className="text-xs text-muted-foreground mt-0.5">
-                {sortedProducts.length} {sortedProducts.length === 1 ? "товар" : sortedProducts.length < 5 ? "товара" : "товаров"}
+                {sortedProducts.length}{" "}
+                {sortedProducts.length === 1
+                  ? "товар"
+                  : sortedProducts.length < 5
+                    ? "товара"
+                    : "товаров"}
               </p>
             )}
           </div>
@@ -206,11 +236,24 @@ const SearchPage = () => {
             ))}
           </div>
         ) : sortedProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-            {sortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+              {displayedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Infinite scroll sentinel */}
+            {hasMore && (
+              <div ref={bottomRef} className="w-full flex justify-center mt-8 h-12">
+                <div className="flex gap-1.5 items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary/40 animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary/40 animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary/40 animate-bounce" />
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-20">
             <img src={mascot} alt="Ничего не найдено" className="w-20 h-20 mx-auto mb-4 object-contain opacity-50" />
