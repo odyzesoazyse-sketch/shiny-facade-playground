@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Share2, Tag, Globe, ExternalLink, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Share2, Tag, Globe, ExternalLink, Copy, Check, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
 import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
@@ -26,7 +26,6 @@ const useCopy = () => {
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem, updateQuantity, removeItem, items } = useCart();
-  const [historyPeriod, setHistoryPeriod] = useState<"7" | "30" | "90" | "180">("90");
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
   const { copiedKey, copy } = useCopy();
 
@@ -45,32 +44,65 @@ const ProductPage = () => {
   const cartItem = items.find((i) => i.product.uuid === id);
   const quantity = cartItem?.quantity || 0;
 
-  const { chartData, chartStores } = useMemo(() => {
+  const { chartData, chartStores, priceChangeStats } = useMemo(() => {
     if (!priceHistoryData?.stores || priceHistoryData.stores.length === 0)
-      return { chartData: [], chartStores: [] };
+      return { chartData: [], chartStores: [], priceChangeStats: null };
 
-    const now = new Date();
-    const cutoff = new Date(now.getTime() - parseInt(historyPeriod) * 86400000);
     const grouped: Record<string, Record<string, number>> = {};
 
     priceHistoryData.stores.forEach((store) => {
-      store.prices
-        .filter((p) => new Date(p.date) >= cutoff)
-        .forEach((p) => {
-          if (!grouped[p.date]) grouped[p.date] = {};
-          grouped[p.date][store.store_name] = p.price;
-        });
+      store.prices.forEach((p) => {
+        if (!grouped[p.date]) grouped[p.date] = {};
+        grouped[p.date][store.store_name] = p.price;
+      });
     });
 
-    const data = Object.entries(grouped)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, prices]) => ({
-        date: new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
-        ...prices,
-      }));
+    const entries = Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b));
+    let priceChangeStats = null;
 
-    return { chartData: data, chartStores: priceHistoryData.stores };
-  }, [priceHistoryData, historyPeriod]);
+    if (entries.length >= 2) {
+      const firstDate = new Date(entries[0][0]).getTime();
+      const lastDate = new Date(entries[entries.length - 1][0]).getTime();
+      const corridorMs = 14 * 24 * 60 * 60 * 1000; // 14 дней коридор
+
+      const firstPrices: number[] = [];
+      const lastPrices: number[] = [];
+
+      priceHistoryData.stores.forEach(store => {
+        const sortedPrices = [...store.prices].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        if (sortedPrices.length === 0) return;
+
+        const firstP = sortedPrices.find(p => new Date(p.date).getTime() <= firstDate + corridorMs);
+        const lastP = [...sortedPrices].reverse().find(p => new Date(p.date).getTime() >= lastDate - corridorMs);
+
+        if (firstP && lastP) {
+          firstPrices.push(firstP.price);
+          lastPrices.push(lastP.price);
+        }
+      });
+
+      if (firstPrices.length > 0 && lastPrices.length > 0) {
+        const firstDayAvg = firstPrices.reduce((a, b) => a + b, 0) / firstPrices.length;
+        const lastDayAvg = lastPrices.reduce((a, b) => a + b, 0) / lastPrices.length;
+
+        const diff = lastDayAvg - firstDayAvg;
+        const percent = (diff / firstDayAvg) * 100;
+
+        priceChangeStats = {
+          percent,
+          isIncrease: diff > 0,
+          isDecrease: diff < 0
+        };
+      }
+    }
+
+    const data = entries.map(([date, prices]) => ({
+      date: new Date(date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
+      ...prices,
+    }));
+
+    return { chartData: data, chartStores: priceHistoryData.stores, priceChangeStats };
+  }, [priceHistoryData]);
 
   if (isLoading) {
     return (
@@ -314,27 +346,26 @@ const ProductPage = () => {
           <div className="bg-card rounded-2xl border border-border p-4 sm:p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-foreground">История цен</h2>
-              <div className="flex items-center gap-1">
-                {(["7", "30", "90", "180"] as const).map((period) => (
-                  <button
-                    key={period}
-                    onClick={() => setHistoryPeriod(period)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${historyPeriod === period
-                      ? "bg-foreground text-background"
-                      : "bg-secondary text-muted-foreground hover:text-foreground"
-                      }`}
-                  >
-                    {period}д
-                  </button>
-                ))}
-              </div>
+              {priceChangeStats && Math.abs(priceChangeStats.percent) > 0.5 && (
+                <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${priceChangeStats.isIncrease
+                  ? "bg-red-500/15 text-red-600 dark:text-red-400"
+                  : "bg-green-500/15 text-green-700 dark:text-green-400"
+                  }`}>
+                  {priceChangeStats.isIncrease ? (
+                    <TrendingUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <TrendingDown className="w-3.5 h-3.5" />
+                  )}
+                  {Math.abs(priceChangeStats.percent).toFixed(1)}% за период
+                </div>
+              )}
             </div>
 
             <div className="h-52 sm:h-60">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(0 0% 45%)" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "hsl(0 0% 45%)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} ₸`} width={62} />
+                  <YAxis domain={['auto', 'auto']} tick={{ fontSize: 10, fill: "hsl(0 0% 45%)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} ₸`} width={62} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "10px", fontSize: "12px" }}
                     formatter={(value: number) => [`${value} ₸`]}

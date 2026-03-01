@@ -143,8 +143,12 @@ export const API_ENDPOINTS = {
   },
   product: (uuid: string, cityId?: number) =>
     `/products/${uuid}/${cityId ? `?city_id=${cityId}` : ''}`,
-  priceHistory: (uuid: string, cityId?: number) =>
-    `/products/${uuid}/price-history/${cityId ? `?city_id=${cityId}` : ''}`,
+  priceHistory: (uuid: string, cityId?: number) => {
+    const params = new URLSearchParams();
+    if (cityId) params.append('city_id', cityId.toString());
+    params.append('days', '180');
+    return `/products/${uuid}/price-history/?${params.toString()}`;
+  },
   priceDrops: (cityId?: number) => `/price-drops/${cityId ? `?city_id=${cityId}` : ''}`,
   priceIncreases: (cityId?: number) => `/price-increases/${cityId ? `?city_id=${cityId}` : ''}`,
   cities: () => '/cities/',
