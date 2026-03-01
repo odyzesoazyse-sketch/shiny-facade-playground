@@ -138,7 +138,11 @@ export interface BestDealsResponse {
 }
 
 export interface DiscountsResponse {
-  discounts: Deal[];
+  results: Product[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
 }
 
 export interface PriceDropsResponse {
@@ -164,13 +168,41 @@ export interface CitiesResponse {
   cities: City[];
 }
 
-export interface PriceHistoryPoint {
-  date: string;
-  price: number;
+export interface PriceHistoryStore {
+  store_id: number;
   store_name: string;
-  chain_name: string;
+  chain_source: string;
+  prices: {
+    date: string;
+    datetime: string;
+    price: number;
+    in_stock: boolean;
+  }[];
 }
 
 export interface PriceHistoryResponse {
-  history: PriceHistoryPoint[];
+  product_uuid: string;
+  product_title: string;
+  days: number;
+  stores: PriceHistoryStore[];
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  emoji: string | null;
+  level: number;
+  priority: number;
+  children?: Category[];
+}
+
+export interface CategoriesResponse {
+  categories: Category[];
+}
+
+export interface ProductsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Product[];
 }

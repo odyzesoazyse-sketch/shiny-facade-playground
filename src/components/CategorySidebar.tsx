@@ -1,75 +1,65 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { categories, categoryDetails, allProducts } from "@/data/mockProducts";
+import { ChevronDown } from "lucide-react";
+import { useCategories } from "@/hooks/useApi";
 
 interface CategorySidebarProps {
-  activeCategory?: string;
-  onCategorySelect?: (category: string) => void;
+  activeCategory: number | null;
+  onCategorySelect: (categoryId: number | null) => void;
 }
 
 const CategorySidebar = ({ activeCategory, onCategorySelect }: CategorySidebarProps) => {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(activeCategory || null);
-  const navigate = useNavigate();
+  const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
+  const { data: categoriesData, isLoading } = useCategories();
 
-  const categoriesData = categories
-    .filter((c) => c !== "Все")
-    .map((cat) => ({
-      name: cat,
-      icon: categoryDetails[cat]?.icon || "📦",
-      subcategories: categoryDetails[cat]?.subcategories || [],
-      count: allProducts.filter((p) => p.category === cat).length,
-    }));
-
-  const handleCategoryClick = (catName: string) => {
-    if (onCategorySelect) {
-      onCategorySelect(catName);
-    } else {
-      navigate(`/catalog/${encodeURIComponent(catName)}`);
-    }
+  const toggleExpanded = (categoryId: number) => {
+    setExpandedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
+
+  if (isLoading) {
+    return (
+      <aside className="hidden lg:block w-56 shrink-0 sticky top-16 self-start">
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-10 bg-secondary/50 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      </aside>
+    );
+  }
+
+  const topCategories = categoriesData?.categories || [];
 
   return (
     <aside className="hidden lg:block w-56 shrink-0 sticky top-16 self-start max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
       <h2 className="text-sm font-semibold text-foreground mb-2 px-2">Категории</h2>
       <nav className="space-y-0.5">
-        {/* All */}
-        <button
-          onClick={() => onCategorySelect?.("Все")}
-          className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs transition-colors ${
-            activeCategory === "Все"
-              ? "bg-accent text-foreground font-medium"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-          }`}
-        >
-          <span className="text-sm">📦</span>
-          <span>Все товары</span>
-        </button>
+        {/* All items section removed */}
 
-        {categoriesData.map((cat) => {
-          const isActive = activeCategory === cat.name;
-          const isExpanded = expandedCategory === cat.name;
+        {topCategories.map((cat) => {
+          const isActive = activeCategory === cat.id;
+          const isExpanded = expandedCategories.includes(cat.id);
+          const hasChildren = cat.children && cat.children.length > 0;
 
           return (
-            <div key={cat.name}>
+            <div key={cat.id}>
               <div className="flex items-center">
                 <button
-                  onClick={() => handleCategoryClick(cat.name)}
-                  className={`flex-1 flex items-center gap-2 px-2 py-2 rounded-lg text-xs transition-colors min-w-0 ${
-                    isActive
+                  onClick={() => onCategorySelect(cat.id)}
+                  className={`flex-1 flex items-center gap-2 px-2 py-2 rounded-lg text-xs transition-colors min-w-0 ${isActive
                       ? "bg-accent text-foreground font-medium"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                  }`}
+                    }`}
                 >
-                  <span className="text-sm leading-none">{cat.icon}</span>
+                  <span className="text-sm leading-none">{cat.emoji || '📦'}</span>
                   <span className="truncate">{cat.name}</span>
-                  {cat.count > 0 && (
-                    <span className="ml-auto text-[10px] text-muted-foreground shrink-0">{cat.count}</span>
-                  )}
                 </button>
-                {cat.subcategories.length > 0 && (
+                {hasChildren && (
                   <button
-                    onClick={() => setExpandedCategory(isExpanded ? null : cat.name)}
+                    onClick={() => toggleExpanded(cat.id)}
                     className="p-1 rounded hover:bg-accent/50 text-muted-foreground"
                   >
                     <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
@@ -77,16 +67,19 @@ const CategorySidebar = ({ activeCategory, onCategorySelect }: CategorySidebarPr
                 )}
               </div>
 
-              {isExpanded && cat.subcategories.length > 0 && (
+              {isExpanded && hasChildren && (
                 <div className="ml-7 space-y-0.5 mt-0.5 mb-1">
-                  {cat.subcategories.map((sub) => (
-                    <Link
-                      key={sub}
-                      to={`/catalog/${encodeURIComponent(cat.name)}?sub=${encodeURIComponent(sub)}`}
-                      className="block px-2 py-1.5 rounded-md text-[11px] text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors truncate"
+                  {cat.children!.map((sub) => (
+                    <button
+                      key={sub.id}
+                      onClick={() => onCategorySelect(sub.id)}
+                      className={`w-full text-left px-2 py-1.5 rounded-md text-[11px] transition-colors truncate ${activeCategory === sub.id
+                          ? "bg-accent/60 text-foreground font-medium"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
+                        }`}
                     >
-                      {sub}
-                    </Link>
+                      {sub.name}
+                    </button>
                   ))}
                 </div>
               )}

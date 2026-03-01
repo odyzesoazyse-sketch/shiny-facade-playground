@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { apiClient, API_ENDPOINTS } from '@/lib/api';
 import { useCity } from '@/context/CityContext';
 import type {
@@ -11,14 +11,16 @@ import type {
   CitiesResponse,
   PriceHistoryResponse,
   ChainsResponse,
+  CategoriesResponse,
+  ProductsResponse,
 } from '@/types/api';
 
 // Search products
-export const useSearch = (query: string) => {
+export const useSearch = (query: string, chainIds?: number[]) => {
   const { selectedCityId } = useCity();
   return useQuery({
-    queryKey: ['search', query, selectedCityId],
-    queryFn: () => apiClient.get<SearchResponse>(API_ENDPOINTS.search(query, selectedCityId)),
+    queryKey: ['search', query, selectedCityId, chainIds],
+    queryFn: () => apiClient.get<SearchResponse>(API_ENDPOINTS.search(query, selectedCityId, chainIds)),
     enabled: query.length > 0,
   });
 };
@@ -33,11 +35,11 @@ export const useBestDeals = () => {
 };
 
 // Get discounts
-export const useDiscounts = () => {
+export const useDiscounts = (chainIds?: number[], page?: number) => {
   const { selectedCityId } = useCity();
   return useQuery({
-    queryKey: ['discounts', selectedCityId],
-    queryFn: () => apiClient.get<DiscountsResponse>(API_ENDPOINTS.discounts(selectedCityId)),
+    queryKey: ['discounts', selectedCityId, chainIds, page],
+    queryFn: () => apiClient.get<DiscountsResponse>(API_ENDPOINTS.discounts(selectedCityId, chainIds, page)),
   });
 };
 
@@ -92,5 +94,58 @@ export const useChains = () => {
   return useQuery({
     queryKey: ['chains'],
     queryFn: () => apiClient.get<ChainsResponse>(API_ENDPOINTS.chains()),
+  });
+};
+
+// Get categories
+export const useCategories = () => {
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: () => apiClient.get<CategoriesResponse>(API_ENDPOINTS.categories()),
+  });
+};
+
+// Get products with filters
+export const useProducts = (params?: {
+  canonical_category?: number;
+  ordering?: string;
+  limit?: number;
+  page?: number;
+}) => {
+  const { selectedCityId } = useCity();
+  return useQuery({
+    queryKey: ['products', params?.canonical_category, params?.ordering, params?.page, selectedCityId],
+    queryFn: () => apiClient.get<ProductsResponse>(
+      API_ENDPOINTS.products({ ...params, city_id: selectedCityId })
+    ),
+    placeholderData: keepPreviousData,
+    enabled: !!selectedCityId,
+  });
+};
+
+// Get infinite products with cursor/page parameters
+export const useInfiniteProducts = (params?: {
+  canonical_category?: number;
+  ordering?: string;
+  limit?: number;
+}) => {
+  const { selectedCityId } = useCity();
+
+  return useInfiniteQuery({
+    queryKey: ['products-infinite', params?.canonical_category, params?.ordering, selectedCityId],
+    queryFn: async ({ pageParam = 1 }) => {
+      return apiClient.get<ProductsResponse>(
+        API_ENDPOINTS.products({ ...params, page: pageParam, city_id: selectedCityId })
+      );
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // If there's a 'next' property in the pagination result, increase page
+      if (lastPage.next) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!selectedCityId,
   });
 };
