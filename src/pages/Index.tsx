@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
+import { Search, ArrowUp } from "lucide-react";
 import Header from "@/components/Header";
 import PageMeta from "@/components/PageMeta";
 import ProductCard from "@/components/ProductCard";
@@ -13,9 +14,21 @@ const DEALS_PER_PAGE = 24;
 const Index = () => {
   const { data: bestDealsData, isLoading: isLoadingDeals } = useBestDeals();
   const { data: chainsData } = useChains();
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
   const { ref, inView } = useInView();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate("/search");
+    }
+  };
 
   // Load more pages when scrolling to bottom
   useEffect(() => {
@@ -61,9 +74,42 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Search bar under hero */}
+        <form onSubmit={handleSearch} className="mb-6">
+          <div
+            className={`relative flex items-center rounded-2xl transition-all duration-200 ${searchFocused
+              ? "bg-card border-2 border-primary shadow-[0_0_20px_4px_hsl(var(--primary)/0.18)]"
+              : "bg-secondary/70 border-2 border-transparent hover:border-border"
+              }`}
+          >
+            <Search
+              className={`absolute left-4 w-5 h-5 transition-colors ${searchFocused ? "text-primary" : "text-muted-foreground"
+                }`}
+            />
+            <input
+              type="text"
+              placeholder="Найти самые низкие цены..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              className="w-full pl-12 pr-14 h-12 sm:h-14 bg-transparent text-foreground text-[15px] sm:text-base placeholder:text-muted-foreground/60 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className={`absolute right-2 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-all ${searchQuery.trim()
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-muted text-muted-foreground hover:bg-muted-foreground/20"
+                }`}
+            >
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        </form>
+
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            🔥 Лучшие скидки
+            🔥 Выгодные предложения
           </h2>
           <span className="text-sm text-muted-foreground">{allDeals.length} товаров</span>
         </div>
