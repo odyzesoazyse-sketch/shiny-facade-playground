@@ -6,10 +6,8 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import StoreLogo from "@/components/StoreLogo";
 import mascot from "@/assets/logo.png";
-import { useSearch, useBestDeals, useChains } from "@/hooks/useApi";
+import { useInfiniteSearch, useChains } from "@/hooks/useApi";
 import { transformProducts } from "@/lib/transformers";
-
-const PRODUCTS_PER_PAGE = 24;
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,24 +37,29 @@ const SearchPage = () => {
     setInputValue(query);
   }, [query]);
 
-  // Reset page when query, filters or sort changes
+  // Reset sentinel and state when query, filters or sort changes
   useEffect(() => {
-    setPage(1);
+    // page state removed as useInfiniteQuery handles it
   }, [query, selectedChainIds, sortBy]);
 
-  // Load next page when sentinel enters viewport
-  useEffect(() => {
-    if (inView) {
-      setPage((prev) => prev + 1);
-    }
-  }, [inView]);
-
   // API hooks — pass chainIds to backend for server-side filtering
-  const { data: searchData, isLoading: isSearchLoading } = useSearch(
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteSearch(
     query,
     selectedChainIds.length > 0 ? selectedChainIds : undefined
   );
-  const { data: bestDealsData, isLoading: isBestDealsLoading } = useBestDeals();
+
+  // Load next page when sentinel enters viewport
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
   const { data: chainsData } = useChains();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -84,14 +87,13 @@ const SearchPage = () => {
   };
 
   const allProducts = useMemo(() => {
-    if (query && searchData?.hits) {
-      return transformProducts(searchData.hits);
-    }
-    if (!query && bestDealsData?.deals) {
-      return transformProducts(bestDealsData.deals);
+    if (query && searchData?.pages) {
+      // Flatten all hits from all fetched pages
+      const allHits = searchData.pages.flatMap(page => page.hits || []);
+      return transformProducts(allHits);
     }
     return [];
-  }, [query, searchData, bestDealsData]);
+  }, [query, searchData]);
 
   // Sort on frontend (filtering is done on the backend via chain_ids)
   const sortedProducts = useMemo(() => {
@@ -108,14 +110,10 @@ const SearchPage = () => {
     return products;
   }, [allProducts, sortBy]);
 
-  // Slice for pagination
-  const displayedProducts = useMemo(() => {
-    return sortedProducts.slice(0, page * PRODUCTS_PER_PAGE);
-  }, [sortedProducts, page]);
+  // Since backend gives us chunks of products, we don't need client-side slicing anymore.
+  // We just render all sortedProducts, which grows as we fetchNextPage.
 
-  const hasMore = displayedProducts.length < sortedProducts.length;
-
-  const isLoading = query ? isSearchLoading : isBestDealsLoading;
+  const isLoading = !!query && isSearchLoading;
 
   return (
     <div className="min-h-screen bg-background pb-32 sm:pb-16">
@@ -181,9 +179,9 @@ const SearchPage = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-foreground">
-              {query ? `Результаты: «${query}»` : "🔥 Лучшие скидки"}
+              {query ? `Результаты: «${query}»` : "Поиск"}
             </h1>
-            {!isLoading && (
+            {query && !isLoading && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 {sortedProducts.length}{" "}
                 {sortedProducts.length === 1
@@ -229,7 +227,13 @@ const SearchPage = () => {
         </div>
 
         {/* Products Grid */}
-        {isLoading ? (
+        {!query ? (
+          <div className="text-center py-24">
+            <img src={mascot} alt="Поиск" className="w-20 h-20 mx-auto mb-4 object-contain opacity-40" />
+            <p className="text-muted-foreground font-medium">Введите запрос для поиска</p>
+            <p className="text-xs text-muted-foreground mt-1.5">Например: молоко, хлеб, курица</p>
+          </div>
+        ) : isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
             {Array.from({ length: 12 }).map((_, i) => (
               <div key={i} className="h-[400px] rounded-xl bg-secondary/50 animate-pulse" />
@@ -238,13 +242,13 @@ const SearchPage = () => {
         ) : sortedProducts.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-              {displayedProducts.map((product) => (
+              {sortedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
             {/* Infinite scroll sentinel */}
-            {hasMore && (
+            {hasNextPage && (
               <div ref={bottomRef} className="w-full flex justify-center mt-8 h-12">
                 <div className="flex gap-1.5 items-center justify-center">
                   <div className="w-2.5 h-2.5 rounded-full bg-primary/40 animate-bounce [animation-delay:-0.3s]" />
@@ -258,7 +262,7 @@ const SearchPage = () => {
           <div className="text-center py-20">
             <img src={mascot} alt="Ничего не найдено" className="w-20 h-20 mx-auto mb-4 object-contain opacity-50" />
             <p className="text-muted-foreground font-medium">
-              {query ? `По запросу «${query}» ничего не найдено` : "Нет товаров"}
+              По запросу «{query}» ничего не найдено
             </p>
             <p className="text-xs text-muted-foreground mt-1.5">
               {selectedChainIds.length > 0

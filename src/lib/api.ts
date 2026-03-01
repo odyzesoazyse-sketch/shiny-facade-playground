@@ -64,11 +64,7 @@ export const apiClient = {
     }
 
     const uuid = await initSession();
-    // Cache busting by appending a timestamp query parameter to GET requests
-    const cacheBuster = `_=${new Date().getTime()}`;
-    const url = endpoint.includes('?')
-      ? `${API_BASE_URL}${endpoint}&${cacheBuster}`
-      : `${API_BASE_URL}${endpoint}?${cacheBuster}`;
+    const url = `${API_BASE_URL}${endpoint}`;
 
     const response = await fetch(url, {
       headers: {
@@ -129,10 +125,11 @@ export const apiClient = {
 };
 
 export const API_ENDPOINTS = {
-  search: (query: string, cityId?: number, chainIds?: number[]) => {
+  search: (query: string, cityId?: number, chainIds?: number[], page?: number) => {
     let url = `/search/?q=${encodeURIComponent(query)}`;
     if (cityId) url += `&city_id=${cityId}`;
     if (chainIds && chainIds.length > 0) url += `&chain_ids=${chainIds.join(',')}`;
+    if (page !== undefined) url += `&page=${page}`;
     return url;
   },
   bestDeals: (cityId?: number) => `/best-deals/${cityId ? `?city_id=${cityId}` : ''}`,

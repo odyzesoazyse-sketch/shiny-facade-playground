@@ -155,7 +155,11 @@ export interface PriceIncreasesResponse {
 
 export interface SearchResponse {
   hits: Product[];
-  count?: number;
+  nbHits: number;
+  page: number;
+  nbPages: number;
+  hitsPerPage: number;
+  query: string;
 }
 
 export interface City {
