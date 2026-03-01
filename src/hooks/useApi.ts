@@ -22,6 +22,33 @@ export const useSearch = (query: string, chainIds?: number[]) => {
     queryKey: ['search', query, selectedCityId, chainIds],
     queryFn: () => apiClient.get<SearchResponse>(API_ENDPOINTS.search(query, selectedCityId, chainIds)),
     enabled: query.length > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useInfiniteSearch = (query: string, chainIds?: number[]) => {
+  const { selectedCityId } = useCity();
+
+  return useInfiniteQuery({
+    queryKey: ['search-infinite', query, selectedCityId, chainIds],
+    queryFn: async ({ pageParam = 0 }) => {
+      // MeiliSearch pagination starts at 0, so we pass pageParam directly
+      return apiClient.get<SearchResponse>(
+        API_ENDPOINTS.search(query, selectedCityId, chainIds, pageParam)
+      );
+    },
+    getNextPageParam: (lastPage) => {
+      // MeiliSearch format: has nbPages and page. If current page + 1 < nbPages, return next page index
+      if (lastPage.page + 1 < lastPage.nbPages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
+    enabled: query.length > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
