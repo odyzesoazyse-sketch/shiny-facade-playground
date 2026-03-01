@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/context/CartContext";
 import { CityProvider } from "@/context/CityContext";
 import Index from "./pages/Index";
@@ -19,31 +20,33 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CityProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/product/:id" element={<ProductPage />} />
-              <Route path="/catalog" element={<CatalogPage />} />
-              <Route path="/catalog/:categoryId" element={<CatalogPage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/discounts" element={<DiscountsPage />} />
-              <Route path="/public-offer" element={<OfertaPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/cart-history" element={<CartHistoryPage />} />
-              <Route path="/cart/:uuid" element={<SharedCartPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </CartProvider>
-      </CityProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <CityProvider>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/catalog/:categoryId" element={<CatalogPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/discounts" element={<DiscountsPage />} />
+                <Route path="/public-offer" element={<OfertaPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/cart-history" element={<CartHistoryPage />} />
+                <Route path="/cart/:uuid" element={<SharedCartPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </CityProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

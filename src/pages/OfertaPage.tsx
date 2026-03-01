@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
+import PageMeta from "@/components/PageMeta";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <section className="mb-8">
@@ -12,6 +13,11 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 const OfertaPage = () => {
     return (
         <div className="min-h-screen bg-background pb-20">
+            <PageMeta
+                title="Публичная оферта"
+                description="Условия использования сервиса сравнения цен minprice.kz."
+                url="/public-offer"
+            />
             <Header />
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">

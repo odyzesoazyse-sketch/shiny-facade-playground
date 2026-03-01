@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import StoreLogo from "@/components/StoreLogo";
 import mascot from "@/assets/logo.png";
+import PageMeta from "@/components/PageMeta";
 import { useDiscounts, useChains } from "@/hooks/useApi";
 import { transformProducts } from "@/lib/transformers";
 
@@ -54,6 +55,11 @@ const DiscountsPage = () => {
 
     return (
         <div className="min-h-screen bg-background pb-32 sm:pb-16">
+            <PageMeta
+                title="Скидки"
+                description="Лучшие скидки на продукты в супермаркетах Казахстана. Сравните цены и сэкономьте на minprice.kz."
+                url="/discounts"
+            />
             <Header />
 
             <div className="max-w-5xl mx-auto px-3 sm:px-6 pt-5 sm:pt-8">
@@ -79,8 +85,8 @@ const DiscountsPage = () => {
                                     onClick={() => toggleChain(chain.id)}
                                     title={chain.name}
                                     className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all border-2 ${isActive
-                                            ? "border-primary bg-primary/10 shadow-[0_0_8px_hsl(var(--primary)/0.3)] scale-110"
-                                            : "border-border bg-card hover:border-foreground/30 opacity-60 hover:opacity-100"
+                                        ? "border-primary bg-primary/10 shadow-[0_0_8px_hsl(var(--primary)/0.3)] scale-110"
+                                        : "border-border bg-card hover:border-foreground/30 opacity-60 hover:opacity-100"
                                         }`}
                                 >
                                     <StoreLogo store={chain.name} logoUrl={chain.logo} size="md" />
@@ -179,8 +185,8 @@ const DiscountsPage = () => {
                                             key={pageNum}
                                             onClick={() => setPage(pageNum)}
                                             className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === pageNum
-                                                    ? "bg-foreground text-background"
-                                                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                                                ? "bg-foreground text-background"
+                                                : "bg-secondary text-muted-foreground hover:text-foreground"
                                                 }`}
                                         >
                                             {pageNum}

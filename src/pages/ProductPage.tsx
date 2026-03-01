@@ -4,6 +4,7 @@ import { ArrowLeft, Share2, Tag, Globe, ExternalLink, Copy, Check, ChevronDown, 
 import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
+import PageMeta from "@/components/PageMeta";
 import { useCart } from "@/context/CartContext";
 import { useProduct, usePriceHistory } from "@/hooks/useApi";
 import { transformProduct } from "@/lib/transformers";
@@ -107,6 +108,13 @@ const ProductPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40 sm:pb-16">
+      <PageMeta
+        title={product.name}
+        description={`${product.name}${product.weight ? ` ${product.weight}` : ''} — от ${bestPrice} ₸. Сравните цены в магазинах Казахстана на minprice.kz`}
+        image={product.image}
+        url={`/product/${product.id}`}
+        type="product"
+      />
       <Header />
 
       <main className="max-w-2xl mx-auto px-3 sm:px-6 py-5 sm:py-8">

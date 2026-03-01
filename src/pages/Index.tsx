@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Header from "@/components/Header";
+import PageMeta from "@/components/PageMeta";
 import ProductCard from "@/components/ProductCard";
 import StoreLogo from "@/components/StoreLogo";
 import { useBestDeals, useChains } from "@/hooks/useApi";
@@ -37,6 +38,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-40 sm:pb-24">
+      <PageMeta />
       <Header />
 
       <section className="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 mb-8">
