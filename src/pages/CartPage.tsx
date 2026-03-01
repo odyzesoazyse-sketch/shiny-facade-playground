@@ -55,6 +55,8 @@ const CartPage = () => {
       apiClient.get<any>(API_ENDPOINTS.chains()).then((data) => {
         if (Array.isArray(data)) {
           setChains(data);
+        } else if (data?.chains) {
+          setChains(data.chains);
         } else if (data?.results) {
           setChains(data.results);
         }
