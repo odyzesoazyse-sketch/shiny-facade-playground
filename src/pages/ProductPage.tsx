@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Share2, Tag, Globe, ExternalLink, Copy, Check, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeft, Share2, Tag, Globe, ExternalLink, Copy, Check, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Download } from "lucide-react";
+import html2canvas from "html2canvas";
 import StoreLogo from "@/components/StoreLogo";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import Header from "@/components/Header";
@@ -28,6 +29,7 @@ const ProductPage = () => {
   const { addItem, updateQuantity, removeItem, items } = useCart();
   const [expandedStore, setExpandedStore] = useState<string | null>(null);
   const { copiedKey, copy } = useCopy();
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const { data: productData, isLoading } = useProduct(id || "");
   const { data: priceHistoryData } = usePriceHistory(id || "");
@@ -128,6 +130,24 @@ const ProductPage = () => {
       </div>
     );
   }
+
+  const handleExportChart = async () => {
+    if (!chartRef.current) return;
+    try {
+      const canvas = await html2canvas(chartRef.current, {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#09090b' : '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `minprice-${product.name.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_').substring(0, 30)}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Failed to export chart', error);
+    }
+  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -343,22 +363,41 @@ const ProductPage = () => {
 
         {/* Price History Chart */}
         {chartData.length > 0 && (
-          <div className="bg-card rounded-2xl border border-border p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-foreground">История цен</h2>
-              {priceChangeStats && Math.abs(priceChangeStats.percent) > 0.5 && (
-                <div className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 ${priceChangeStats.isIncrease
-                  ? "bg-red-500/15 text-red-600 dark:text-red-400"
-                  : "bg-green-500/15 text-green-700 dark:text-green-400"
-                  }`}>
-                  {priceChangeStats.isIncrease ? (
-                    <TrendingUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <TrendingDown className="w-3.5 h-3.5" />
-                  )}
-                  {Math.abs(priceChangeStats.percent).toFixed(1)}% за период
+          <div ref={chartRef} className="bg-card rounded-2xl border border-border p-4 sm:p-5 relative overflow-hidden">
+
+            <div className="flex items-start justify-between mb-4 relative z-10 w-full gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <h2 className="text-sm font-semibold text-foreground">Динамика цен</h2>
+                  <span className="text-[9px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded uppercase font-medium whitespace-nowrap hidden sm:inline-block">minprice.kz</span>
                 </div>
-              )}
+                <p className="text-[11px] sm:text-xs text-muted-foreground break-words whitespace-normal leading-normal pb-0.5">
+                  {product.name}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 flex-shrink-0">
+                {priceChangeStats && Math.abs(priceChangeStats.percent) > 0.5 && (
+                  <div className={`px-2 py-1 sm:px-2.5 rounded-full text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${priceChangeStats.isIncrease
+                    ? "bg-red-500/15 text-red-600 dark:text-red-400"
+                    : "bg-green-500/15 text-green-700 dark:text-green-400"
+                    }`}>
+                    {priceChangeStats.isIncrease ? (
+                      <TrendingUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <TrendingDown className="w-3.5 h-3.5" />
+                    )}
+                    {Math.abs(priceChangeStats.percent).toFixed(1)}%
+                  </div>
+                )}
+                <button
+                  onClick={handleExportChart}
+                  data-html2canvas-ignore="true"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-secondary text-muted-foreground hover:text-foreground flex items-center justify-center transition-all border border-transparent hover:border-border shadow-sm active:scale-95"
+                  title="Скачать график (PNG)"
+                >
+                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              </div>
             </div>
 
             <div className="h-52 sm:h-60">
