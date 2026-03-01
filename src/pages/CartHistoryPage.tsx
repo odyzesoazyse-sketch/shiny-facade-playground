@@ -32,7 +32,17 @@ const CartHistoryPage = () => {
         try {
             const data = await apiClient.get<any>(API_ENDPOINTS.carts());
             if (data && data.results) {
-                setCarts(data.results);
+                const cartsWithOwnership = await Promise.all(
+                    data.results.map(async (cart: CartHistoryItem) => {
+                        try {
+                            const summary = await apiClient.get<any>(API_ENDPOINTS.cartSummary(cart.uuid));
+                            return { ...cart, is_owner: summary?.cart?.is_owner ?? true };
+                        } catch {
+                            return { ...cart, is_owner: true };
+                        }
+                    })
+                );
+                setCarts(cartsWithOwnership);
             }
         } catch (e: any) {
             console.error("Error fetching cart history:", e);
