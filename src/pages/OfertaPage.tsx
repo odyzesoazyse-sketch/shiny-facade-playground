@@ -137,10 +137,12 @@ const OfertaPage = () => {
                     <p>
                         По вопросам, связанным с условиями оферты или работой Сервиса, обращайтесь:{" "}
                         <a
-                            href="mailto:hello@minprice.kz"
+                            href="https://t.me/minpricekz_feedback"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-foreground underline underline-offset-2 hover:opacity-70 transition-opacity"
                         >
-                            hello@minprice.kz
+                            Telegram-чат поддержки
                         </a>
                     </p>
                 </Section>
