@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://minprice.xyz/api';
+const API_BASE_URL = 'https://backend.minprice.kz/api';
 const GUEST_UUID_KEY = 'minprice_guest_uuid';
 
 let sessionPromise: Promise<string> | null = null;

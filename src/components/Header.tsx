@@ -37,22 +37,25 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden sm:flex items-center gap-6 mx-4">
-              {navItems.filter(item => !item.hasBadge).map((item) => {
+              {navItems.map((item) => {
                 const active = item.matchExact
                   ? location.pathname === item.to
-                  : item.to.includes("?")
-                    ? location.pathname === item.to.split("?")[0] && location.search.includes(item.to.split("?")[1])
-                    : location.pathname.startsWith(item.to);
+                  : location.pathname.startsWith(item.to);
 
                 return (
                   <Link
                     key={item.label}
                     to={item.to}
-                    className={`text-sm font-medium transition-colors hover:text-foreground flex items-center gap-1.5 ${active ? "text-foreground" : "text-muted-foreground"
+                    className={`text-sm font-medium transition-colors hover:text-foreground flex items-center gap-1.5 relative ${active ? "text-foreground" : "text-muted-foreground"
                       }`}
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label}
+                    {item.hasBadge && totalItems > 0 && (
+                      <span className="absolute -top-2 -right-3 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
+                        {totalItems}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -75,18 +78,7 @@ const Header = () => {
                 <ScanBarcode className="w-4.5 h-4.5" />
               </button>
 
-              {/* Cart icon in header */}
-              <Link
-                to="/cart"
-                className="relative flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
-              >
-                <ShoppingCart className="w-4.5 h-4.5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+
             </div>
           </div>
         </div>

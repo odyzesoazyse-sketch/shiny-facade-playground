@@ -11,6 +11,7 @@ import SearchPage from "./pages/SearchPage";
 import CatalogPage from "./pages/CatalogPage";
 import CartPage from "./pages/CartPage";
 import DiscountsPage from "./pages/DiscountsPage";
+import OfertaPage from "./pages/OfertaPage";
 import CartHistoryPage from "./pages/CartHistoryPage";
 import SharedCartPage from "./pages/SharedCartPage";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/catalog/:categoryId" element={<CatalogPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/discounts" element={<DiscountsPage />} />
+              <Route path="/public-offer" element={<OfertaPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/cart-history" element={<CartHistoryPage />} />
               <Route path="/cart/:uuid" element={<SharedCartPage />} />

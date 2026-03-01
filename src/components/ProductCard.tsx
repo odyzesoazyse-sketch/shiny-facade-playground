@@ -94,16 +94,16 @@ const ProductCard = ({ product }: { product: Product }) => {
         <h3 className="text-[13px] text-foreground leading-snug line-clamp-2 min-h-[2.25rem]">
           {product.name}
         </h3>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{product.weight}</p>
+
       </div>
 
       {/* Store prices - fixed height */}
       <div className="px-3 py-1.5 border-t border-border flex-1">
         <div className="space-y-1">
-          {displayStores.map((store) => {
+          {displayStores.map((store, i) => {
             const isBest = store.price === bestStore.price;
             return (
-              <div key={store.store} className="flex items-center justify-between text-[11px] h-[18px]">
+              <div key={`${store.store}-${i}`} className="flex items-center justify-between text-[11px] h-[18px]">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <StoreLogo store={store.store} size="sm" logoUrl={store.storeImage} />
                   <span className="text-muted-foreground truncate">{store.store}</span>

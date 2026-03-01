@@ -50,17 +50,12 @@ const Index = () => {
               Находим минимальную цену в {chainsData?.chains.length || 5} магазинах
             </p>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {chainsData?.chains.slice(0, 4).map((chain) => (
-              <span key={chain.id} className="w-7 h-7 rounded-full bg-background border border-border flex items-center justify-center">
-                <StoreLogo store={chain.name} size="sm" />
+          <div className="flex items-center gap-1.5 shrink-0">
+            {chainsData?.chains.map((chain) => (
+              <span key={chain.id} title={chain.name} className="w-7 h-7 rounded-full bg-background border border-border flex items-center justify-center overflow-hidden">
+                <StoreLogo store={chain.name} logoUrl={chain.logo} size="sm" />
               </span>
             ))}
-            {(chainsData?.chains.length || 0) > 4 && (
-              <span className="w-7 h-7 rounded-full bg-background border border-border flex items-center justify-center text-[10px] text-muted-foreground font-medium">
-                +{(chainsData?.chains.length || 0) - 4}
-              </span>
-            )}
           </div>
         </div>
 
@@ -120,8 +115,9 @@ const Footer = () => (
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground font-medium">
           <Link to="/search" className="hover:text-foreground transition-colors">Поиск</Link>
           <Link to="/catalog" className="hover:text-foreground transition-colors">Каталог</Link>
-          <Link to="/search?sort=discount" className="hover:text-foreground transition-colors">Скидки</Link>
+          <Link to="/discounts" className="hover:text-foreground transition-colors">Скидки</Link>
           <Link to="/cart" className="hover:text-foreground transition-colors">Корзина</Link>
+          <Link to="/public-offer" className="hover:text-foreground transition-colors">Оферта</Link>
         </div>
       </div>
       <div className="mt-6 pt-4 border-t border-border text-center text-xs text-muted-foreground">

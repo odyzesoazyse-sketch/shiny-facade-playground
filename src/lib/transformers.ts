@@ -20,14 +20,14 @@ export const transformStorePrice = (apiStore: ApiStorePrice): MockStorePrice => 
   if (!logoUrl.startsWith('http')) {
     // Add /media/ prefix if not already present
     const path = logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`;
-    logoUrl = path.startsWith('/media/') ? `https://minprice.xyz${path}` : `https://minprice.xyz/media${path}`;
+    logoUrl = path.startsWith('/media/') ? `https://backend.minprice.kz${path}` : `https://backend.minprice.kz/media${path}`;
   }
 
   // Construct full ext_product image URL
   let extProductImageUrl = apiStore.ext_product_image;
   if (extProductImageUrl && !extProductImageUrl.startsWith('http')) {
     const imgPath = extProductImageUrl.startsWith('/') ? extProductImageUrl : `/${extProductImageUrl}`;
-    extProductImageUrl = imgPath.startsWith('/media/') ? `https://minprice.xyz${imgPath}` : `https://minprice.xyz/media${imgPath}`;
+    extProductImageUrl = imgPath.startsWith('/media/') ? `https://backend.minprice.kz${imgPath}` : `https://backend.minprice.kz/media${imgPath}`;
   }
 
   return {
