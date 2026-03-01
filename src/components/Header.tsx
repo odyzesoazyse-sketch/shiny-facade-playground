@@ -1,23 +1,22 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode, Moon, Sun, LayoutGrid } from "lucide-react";
+import { Search, ShoppingCart, Home, Tag, ArrowUp, ScanBarcode, Moon, Sun, LayoutGrid } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import CitySelector from "@/components/CitySelector";
 import logo from "@/assets/logo.png";
-
-const cities = ["Алматы", "Астана"];
 
 const navItems = [
   { to: "/", icon: Home, label: "Главная", matchExact: true },
+  { to: "/search", icon: Search, label: "Поиск" },
   { to: "/catalog", icon: LayoutGrid, label: "Каталог" },
-  { to: "/search?sort=discount", icon: Tag, label: "Скидки" },
+  { to: "/discounts", icon: Tag, label: "Скидки" },
   { to: "/cart", icon: ShoppingCart, label: "Корзина", hasBadge: true },
 ];
 
 const Header = () => {
-  const [selectedCity, setSelectedCity] = useState("Алматы");
-  const [cityOpen, setCityOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const { totalItems } = useCart();
+  const location = useLocation();
 
   const toggleTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -36,6 +35,32 @@ const Header = () => {
               </span>
             </Link>
 
+            {/* Desktop Navigation */}
+            <nav className="hidden sm:flex items-center gap-6 mx-4">
+              {navItems.map((item) => {
+                const active = item.matchExact
+                  ? location.pathname === item.to
+                  : location.pathname.startsWith(item.to);
+
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={`text-sm font-medium transition-colors hover:text-foreground flex items-center gap-1.5 relative ${active ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                    {item.hasBadge && totalItems > 0 && (
+                      <span className="absolute -top-2 -right-3 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
+                        {totalItems}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleTheme}
@@ -44,54 +69,16 @@ const Header = () => {
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
 
-              <div className="relative">
-                <button
-                  onClick={() => setCityOpen(!cityOpen)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>{selectedCity}</span>
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-                {cityOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setCityOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[120px]">
-                      {cities.map((city) => (
-                        <button
-                          key={city}
-                          onClick={() => { setSelectedCity(city); setCityOpen(false); }}
-                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors ${
-                            city === selectedCity ? "text-foreground font-medium" : "text-muted-foreground"
-                          }`}
-                        >
-                          {city}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              <CitySelector />
 
               <button
                 className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => {/* scan barcode */}}
+                onClick={() => {/* scan barcode */ }}
               >
                 <ScanBarcode className="w-4.5 h-4.5" />
               </button>
 
-              {/* Cart icon in header */}
-              <Link
-                to="/cart"
-                className="relative flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
-              >
-                <ShoppingCart className="w-4.5 h-4.5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+
             </div>
           </div>
         </div>
@@ -147,17 +134,15 @@ const BottomBar = () => {
   return (
     <>
       {/* Search bar */}
-      <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${
-        searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-      }`}>
+      <div className={`fixed bottom-[calc(env(safe-area-inset-bottom)+56px)] sm:bottom-6 left-0 right-0 z-50 pointer-events-none transition-all duration-300 ${searchVisible || isFocused ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+        }`}>
         <div className="pointer-events-auto max-w-3xl mx-auto px-3 sm:px-4">
           <form onSubmit={handleSearch} className="py-2">
             <div
-              className={`relative flex items-center gap-2 rounded-3xl bg-card/90 backdrop-blur-xl transition-all duration-200 ${
-                isFocused
-                  ? "border-2 border-primary shadow-[0_0_20px_4px_hsl(var(--primary)/0.25)] scale-[1.02]"
-                  : "border-2 border-primary/30 shadow-[0_4px_24px_0_hsl(var(--primary)/0.10)] hover:border-primary/50 hover:shadow-[0_4px_24px_0_hsl(var(--primary)/0.18)]"
-              }`}
+              className={`relative flex items-center gap-2 rounded-3xl bg-card/90 backdrop-blur-xl transition-all duration-200 ${isFocused
+                ? "border-2 border-primary shadow-[0_0_20px_4px_hsl(var(--primary)/0.25)] scale-[1.02]"
+                : "border-2 border-primary/30 shadow-[0_4px_24px_0_hsl(var(--primary)/0.10)] hover:border-primary/50 hover:shadow-[0_4px_24px_0_hsl(var(--primary)/0.18)]"
+                }`}
             >
               <Search className={`absolute left-4 w-5 h-5 transition-colors ${isFocused ? "text-primary" : "text-primary/60"}`} />
               <input
@@ -171,11 +156,10 @@ const BottomBar = () => {
               />
               <button
                 type="submit"
-                className={`shrink-0 mr-1.5 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-all ${
-                  searchQuery.trim()
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 scale-100"
-                    : "bg-muted text-muted-foreground scale-95"
-                }`}
+                className={`shrink-0 mr-1.5 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-all ${searchQuery.trim()
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 scale-100"
+                  : "bg-muted text-muted-foreground scale-95"
+                  }`}
               >
                 <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -196,9 +180,8 @@ const BottomBar = () => {
               <Link
                 key={item.label}
                 to={item.to}
-                className={`relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors ${
-                  active ? "text-foreground" : "text-muted-foreground"
-                }`}
+                className={`relative flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors ${active ? "text-foreground" : "text-muted-foreground"
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="text-[11px] font-medium">{item.label}</span>
