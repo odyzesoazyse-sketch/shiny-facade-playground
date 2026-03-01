@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { useCart, CartItem } from "@/context/CartContext";
 import mascot from "@/assets/logo.png";
 import { API_ENDPOINTS, apiClient } from "@/lib/api";
+import { toRuUnit } from "@/lib/utils";
 
 const SharedCartPage = () => {
     const { uuid } = useParams<{ uuid: string }>();
@@ -164,7 +165,7 @@ const SharedCartPage = () => {
                                                         {item.product.title}
                                                     </Link>
                                                     {item.product.measure_unit_qty && item.product.measure_unit_kind && (
-                                                        <p className="text-[11px] text-muted-foreground mt-0.5">{item.product.measure_unit_qty} {item.product.measure_unit_kind}</p>
+                                                        <p className="text-[11px] text-muted-foreground mt-0.5">{parseFloat(item.product.measure_unit_qty)} {toRuUnit(item.product.measure_unit_kind)}</p>
                                                     )}
                                                 </div>
                                             </div>

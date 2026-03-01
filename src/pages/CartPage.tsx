@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { apiClient, API_ENDPOINTS } from "@/lib/api";
+import { toRuUnit } from "@/lib/utils";
 
 interface ChainInfo {
   id: number;
@@ -188,7 +189,7 @@ const CartPage = () => {
   const hasItems = items.length > 0 || unavailableProducts.length > 0;
 
   return (
-    <div className="min-h-screen bg-background pb-40 sm:pb-8">
+    <div className="min-h-screen bg-background pb-8">
       <Header />
 
       <main className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
@@ -426,7 +427,7 @@ const CartPage = () => {
                               {item.product.title}
                             </Link>
                             {item.product.measure_unit_qty && item.product.measure_unit_kind && (
-                              <p className="text-[11px] text-muted-foreground mt-0.5">{item.product.measure_unit_qty} {item.product.measure_unit_kind}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{parseFloat(item.product.measure_unit_qty)} {toRuUnit(item.product.measure_unit_kind)}</p>
                             )}
                           </div>
 
