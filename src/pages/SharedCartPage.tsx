@@ -8,10 +8,13 @@ import { API_ENDPOINTS, apiClient } from "@/lib/api";
 
 const SharedCartPage = () => {
     const { uuid } = useParams<{ uuid: string }>();
+    const { cartUuid, fetchCart } = useCart();
     const [cartName, setCartName] = useState("");
     const [items, setItems] = useState<CartItem[]>([]);
     const [totalPrice, setTotalPrice] = useState<number>(0);
+    const [isOwner, setIsOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isMakingActive, setIsMakingActive] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -20,9 +23,9 @@ const SharedCartPage = () => {
             setIsLoading(true);
             setError(null);
             try {
-                // Fetch cart summary
                 const data = await apiClient.get<any>(API_ENDPOINTS.cartSummary(uuid));
                 setCartName(data.cart.name);
+                setIsOwner(data.cart.is_owner === true);
                 setTotalPrice(data.cheapest_total_price || 0);
                 if (data.cheapest_per_product) {
                     setItems(data.cheapest_per_product);
@@ -36,6 +39,19 @@ const SharedCartPage = () => {
         };
         fetchSharedCart();
     }, [uuid]);
+
+    const handleMakeActive = async () => {
+        if (!uuid) return;
+        setIsMakingActive(true);
+        try {
+            await apiClient.post(API_ENDPOINTS.cartSetActive(uuid));
+            await fetchCart();
+        } catch (e) {
+            console.error("Failed to set active cart:", e);
+        } finally {
+            setIsMakingActive(false);
+        }
+    };
 
     const groupedByStore = items.reduce<Record<string, CartItem[]>>(
         (acc, item) => {
@@ -84,10 +100,23 @@ const SharedCartPage = () => {
                         На главную
                     </Link>
 
-                    <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
-                        {cartName}
-                    </h1>
-                    <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded mt-2 inline-block">Просмотр по ссылке</span>
+                    <div className="flex items-center justify-between gap-4">
+                        <h1 className="text-lg sm:text-xl font-semibold tracking-tight text-foreground">
+                            {cartName}
+                        </h1>
+                        {isOwner && uuid !== cartUuid && (
+                            <button
+                                onClick={handleMakeActive}
+                                disabled={isMakingActive}
+                                className="text-xs font-medium px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-60"
+                            >
+                                {isMakingActive ? "..." : "Сделать активной"}
+                            </button>
+                        )}
+                    </div>
+                    {!isOwner && (
+                        <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded mt-2 inline-block">С вами поделились этой корзиной</span>
+                    )}
                 </div>
 
                 {items.length === 0 ? (
