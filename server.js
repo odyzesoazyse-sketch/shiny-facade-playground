@@ -131,7 +131,7 @@ app.get("/product/:uuid", async (req, res) => {
 });
 
 // ─── Все остальные роуты SPA → index.html ─────────────────────────────────
-app.get("*", (_req, res) => {
+app.use((_req, res) => {
     res.send(indexHtml);
 });
 
