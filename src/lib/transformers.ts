@@ -20,7 +20,14 @@ export const transformStorePrice = (apiStore: ApiStorePrice): MockStorePrice => 
   if (!logoUrl.startsWith('http')) {
     // Add /media/ prefix if not already present
     const path = logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`;
-    logoUrl = path.startsWith('/media/') ? `https://minprice.xyz${path}` : `https://minprice.xyz/media${path}`;
+    logoUrl = path.startsWith('/media/') ? `https://backend.minprice.kz${path}` : `https://backend.minprice.kz/media${path}`;
+  }
+
+  // Construct full ext_product image URL
+  let extProductImageUrl = apiStore.ext_product_image;
+  if (extProductImageUrl && !extProductImageUrl.startsWith('http')) {
+    const imgPath = extProductImageUrl.startsWith('/') ? extProductImageUrl : `/${extProductImageUrl}`;
+    extProductImageUrl = imgPath.startsWith('/media/') ? `https://backend.minprice.kz${imgPath}` : `https://backend.minprice.kz/media${imgPath}`;
   }
 
   return {
@@ -31,6 +38,8 @@ export const transformStorePrice = (apiStore: ApiStorePrice): MockStorePrice => 
     storeName: apiStore.store_name,
     storeImage: logoUrl,
     storeUrl: apiStore.url,
+    extProductTitle: apiStore.ext_product_title,
+    extProductImage: extProductImageUrl,
   };
 };
 
@@ -50,13 +59,40 @@ export const transformProduct = (apiProduct: ApiProduct | Deal): MockProduct => 
 
   const stores = apiStores.map(transformStorePrice);
 
-  // Calculate best and worst prices
+  // Calculate minimum price
   const minPrice = ('price_range' in apiProduct && apiProduct.price_range?.min)
     ? apiProduct.price_range.min
-    : apiProduct.min_price || Math.min(...stores.map(s => s.price));
-  const maxPrice = ('price_range' in apiProduct && apiProduct.price_range?.max)
-    ? apiProduct.price_range.max
-    : apiProduct.max_price || Math.max(...stores.map(s => s.oldPrice || s.price));
+    : apiProduct.min_price || (stores.length > 0 ? Math.min(...stores.map(s => s.price)) : 0);
+
+  // Determine an intelligent reference (max) price to highlight savings
+  let maxPrice = minPrice;
+
+  if (stores.length === 1) {
+    // If only 1 store, rely on its own discount
+    maxPrice = stores[0].oldPrice || stores[0].price;
+  } else if (stores.length === 2) {
+    // If 2 stores, simply compare max to min
+    maxPrice = Math.max(...stores.map(s => s.oldPrice || s.price));
+  } else if (stores.length > 2) {
+    // If multiple stores, calculate the median price. 
+    // This avoids extremely expensive outliers skewing the "savings" range significantly.
+    const allPrices = stores.map(s => s.oldPrice || s.price).sort((a, b) => a - b);
+    const mid = Math.floor(allPrices.length / 2);
+    const medianPrice = allPrices.length % 2 !== 0
+      ? allPrices[mid]
+      : (allPrices[mid - 1] + allPrices[mid]) / 2;
+    maxPrice = medianPrice;
+  } else {
+    // Fallback if no stores array is available
+    maxPrice = ('price_range' in apiProduct && apiProduct.price_range?.max)
+      ? apiProduct.price_range.max
+      : apiProduct.max_price || minPrice;
+  }
+
+  // Ensure maxPrice is not less than minPrice due to some odd data
+  if (maxPrice < minPrice) {
+    maxPrice = minPrice;
+  }
 
   const discountPercent = calculateDiscountPercent(minPrice, maxPrice);
   const savingsAmount = Math.round(maxPrice - minPrice);
@@ -64,8 +100,8 @@ export const transformProduct = (apiProduct: ApiProduct | Deal): MockProduct => 
   // Handle measure_unit_qty which can be string or number
   const measureQty = apiProduct.measure_unit_qty
     ? (typeof apiProduct.measure_unit_qty === 'string'
-        ? parseFloat(apiProduct.measure_unit_qty)
-        : apiProduct.measure_unit_qty)
+      ? parseFloat(apiProduct.measure_unit_qty)
+      : apiProduct.measure_unit_qty)
     : '';
   const measureKind = apiProduct.measure_unit_kind || apiProduct.measure_unit || '';
   const weight = measureQty ? `${measureQty}${measureKind}` : measureKind;

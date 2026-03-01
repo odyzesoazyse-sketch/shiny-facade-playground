@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
+# minprice.kz — фронтенд
 
-## Project info
+Веб-приложение для сравнения цен на продукты питания в супермаркетах Казахстана.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Сравниваем цены в Magnum, Arbuz, Airba Fresh, A-Store, Small и других магазинах в режиме реального времени.
 
-## How can I edit this code?
+## Стек
 
-There are several ways of editing your application.
+- **React 18** + **TypeScript**
+- **Vite** — сборка
+- **TanStack Query** — управление состоянием и кэширование запросов
+- **react-router-dom** — маршрутизация
+- **recharts** — графики истории цен
+- **react-helmet-async** — динамические мета-теги (OG/Twitter)
+- **Tailwind CSS** + shadcn/ui — стилизация
 
-**Use Lovable**
+## Страницы
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+| Путь | Описание |
+|---|---|
+| `/` | Главная — лучшие скидки |
+| `/search` | Поиск по товарам |
+| `/catalog` | Каталог по категориям |
+| `/discounts` | Все товары со скидками |
+| `/product/:uuid` | Страница товара с историей цен |
+| `/cart` | Корзина |
+| `/public-offer` | Публичная оферта |
 
-Changes made via Lovable will be committed automatically to this repo.
+## API
 
-**Use your preferred IDE**
+Бэкенд: `https://backend.minprice.kz/api/`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Основные эндпоинты:
+- `GET /search/?q=...&city_id=1&chain_ids=1,2`
+- `GET /discounts/?city_id=1&page=1`
+- `GET /products/:uuid/`
+- `GET /products/:uuid/price-history/`
+- `GET /chains/`
+- `GET /cities/`
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Запуск локально
 
-Follow these steps:
+```bash
+# Установить зависимости
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Запустить dev-сервер (http://localhost:8080)
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Сборка и деплой
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Собрать production-бандл
+npm run build
+# Результат в папке dist/
 
-**Use GitHub Codespaces**
+# Запустить preview билда локально
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+На сервере раздаётся через **Nginx** как SPA (`try_files $uri /index.html`).  
+Подробная инструкция по деплою — в [DEPLOY.md](./DEPLOY.md) *(если есть)* или в документации команды.
 
-## What technologies are used for this project?
+## Структура проекта
 
-This project is built with:
+```
+src/
+├── components/      # Переиспользуемые компоненты (Header, ProductCard, StoreLogo, ...)
+├── context/         # React Context (корзина, город)
+├── hooks/           # TanStack Query хуки (useSearch, useDiscounts, useProduct, ...)
+├── lib/             # API-клиент, трансформеры, утилиты
+├── pages/           # Страницы приложения
+└── types/           # TypeScript типы API
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Переменные окружения
 
-## How can I deploy this project?
+Проект не использует `.env` — базовый URL API захардкожен в `src/lib/api.ts`:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```ts
+const API_BASE_URL = 'https://backend.minprice.kz/api';
+```
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Чтобы использовать другой бэкенд — поменяй эту строку.

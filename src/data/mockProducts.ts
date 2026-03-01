@@ -6,6 +6,8 @@ export interface StorePrice {
   storeName?: string;
   storeImage?: string;
   storeUrl?: string;
+  extProductTitle?: string;
+  extProductImage?: string;
 }
 
 export interface PriceHistoryPoint {
