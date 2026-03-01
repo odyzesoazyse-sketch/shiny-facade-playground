@@ -59,9 +59,13 @@ function injectMeta(html, { title, description, image, url }) {
     <meta name="twitter:description" content="${d}" />
     <meta name="twitter:image" content="${img}" />`;
 
-    // Заменяем <title>...</title> и вставляем мета сразу после <head>
     return html
-        .replace(/<title>.*?<\/title>/s, "")
+        // Удалить существующие title и meta og:/twitter:/description из index.html
+        .replace(/<title>.*?<\/title>/gs, "")
+        .replace(/<meta\s+name="description"[^>]*>/gi, "")
+        .replace(/<meta\s+property="og:[^"]*"[^>]*>/gi, "")
+        .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, "")
+        // Вставить динамические теги сразу после <head>
         .replace("<head>", `<head>${meta}`);
 }
 
