@@ -23,12 +23,21 @@ export interface CartItem {
   quantity: number;
   currency?: string;
   url?: string;
+  ext_product_title?: string;
+  ext_product_image?: string | null;
 }
 
 export interface UnavailableProduct {
   product: CartItemProduct;
   quantity: number;
   reason: string;
+}
+
+export interface AvailableStore {
+  store_id: number;
+  store_name: string;
+  chain_name: string;
+  chain_logo: string | null;
 }
 
 interface CartContextType {
@@ -41,6 +50,7 @@ interface CartContextType {
   isOwner: boolean;
   isLoading: boolean;
   selectedStoreIds: number[];
+  availableStores: AvailableStore[];
 
   // Actions
   fetchCart: () => Promise<void>;
@@ -66,6 +76,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isOwner, setIsOwner] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedStoreIds, setSelectedStoreIds] = useState<number[]>([]);
+  const [availableStores, setAvailableStores] = useState<AvailableStore[]>([]);
 
   const fetchCartSummary = async (uuid: string) => {
     try {
@@ -86,6 +97,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setUnavailableProducts(data.unavailable_products);
       } else {
         setUnavailableProducts([]);
+      }
+
+      if (data.all_stores && Array.isArray(data.all_stores)) {
+        setAvailableStores(data.all_stores);
       }
     } catch (error) {
       console.error("Failed to fetch cart summary:", error);
@@ -246,7 +261,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   return (
     <CartContext.Provider
       value={{
-        cartUuid, cartName, items, unavailableProducts, totalItems, totalPrice, isOwner, isLoading, selectedStoreIds,
+        cartUuid, cartName, items, unavailableProducts, totalItems, totalPrice, isOwner, isLoading, selectedStoreIds, availableStores,
         fetchCart, addItem, removeItem, updateQuantity, clearCart, renameCart, archiveCart, deleteCart, updateStorePreferences
       }}
     >

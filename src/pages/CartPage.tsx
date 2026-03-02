@@ -14,20 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { apiClient, API_ENDPOINTS } from "@/lib/api";
 import { toRuUnit } from "@/lib/utils";
-
-interface ChainInfo {
-  id: number;
-  name: string;
-  logo: string | null;
-}
 
 const CartPage = () => {
   const {
     cartUuid, cartName, items, unavailableProducts, removeItem, updateQuantity,
     clearCart, totalPrice, totalItems, isOwner, renameCart, archiveCart, deleteCart,
-    addItem, selectedStoreIds, updateStorePreferences
+    addItem, selectedStoreIds, updateStorePreferences, availableStores
   } = useCart();
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [newCartName, setNewCartName] = useState(cartName);
@@ -37,7 +30,6 @@ const CartPage = () => {
     setNewCartName(cartName);
   }, [cartName]);
   const [showStorePrefs, setShowStorePrefs] = useState(false);
-  const [chains, setChains] = useState<ChainInfo[]>([]);
   const [localSelectedIds, setLocalSelectedIds] = useState<number[]>(selectedStoreIds);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -50,22 +42,15 @@ const CartPage = () => {
     setLocalSelectedIds(selectedStoreIds);
   }, [selectedStoreIds]);
 
-  // Fetch available chains when store prefs panel opens
-  useEffect(() => {
-    if (showStorePrefs && chains.length === 0) {
-      apiClient.get<any>(API_ENDPOINTS.chains()).then((data) => {
-        if (Array.isArray(data)) {
-          setChains(data);
-        } else if (data?.chains) {
-          setChains(data.chains);
-        } else if (data?.results) {
-          setChains(data.results);
-        }
-      }).catch(console.error);
+  const chainGroups = useMemo(() => {
+    const groups: Record<string, { storeIds: number[]; logo: string | null }> = {};
+    for (const s of availableStores) {
+      if (!groups[s.chain_name]) groups[s.chain_name] = { storeIds: [], logo: s.chain_logo };
+      groups[s.chain_name].storeIds.push(s.store_id);
     }
-  }, [showStorePrefs]);
+    return groups;
+  }, [availableStores]);
 
-  // Group items by store
   const groupedByStore = items.reduce<Record<string, CartItem[]>>(
     (acc, item) => {
       if (!acc[item.store_name]) acc[item.store_name] = [];
@@ -173,17 +158,29 @@ const CartPage = () => {
     }
   };
 
-  const toggleChain = (chainId: number) => {
-    setLocalSelectedIds(prev =>
-      prev.includes(chainId)
-        ? prev.filter(id => id !== chainId)
-        : [...prev, chainId]
-    );
+  const isChainSelected = (storeIds: number[]) =>
+    localSelectedIds.length === 0 || storeIds.some(id => localSelectedIds.includes(id));
+
+  const toggleChain = (storeIds: number[]) => {
+    setLocalSelectedIds(prev => {
+      const allIds = availableStores.map(s => s.store_id);
+      const effective = prev.length === 0 ? allIds : prev;
+      const hasAny = storeIds.some(id => effective.includes(id));
+      return hasAny
+        ? effective.filter(id => !storeIds.includes(id))
+        : [...prev, ...storeIds.filter(id => !prev.includes(id))];
+    });
   };
 
   const applyStorePrefs = async () => {
     await updateStorePreferences(localSelectedIds);
     toast({ title: "Предпочтения сохранены" });
+  };
+
+  const switchToChain = async (chainName: string, fallbackStoreId: number) => {
+    const storeIds = chainGroups[chainName]?.storeIds ?? [fallbackStoreId];
+    await updateStorePreferences(storeIds);
+    toast({ title: `Показываю только ${chainName}` });
   };
 
   const hasItems = items.length > 0 || unavailableProducts.length > 0;
@@ -299,25 +296,25 @@ const CartPage = () => {
                 <p className="text-[11px] text-muted-foreground">
                   Выберите магазины, в которых вы хотите покупать. Оптимальный микс будет рассчитан только по выбранным.
                 </p>
-                {chains.length === 0 ? (
+                {Object.keys(chainGroups).length === 0 ? (
                   <p className="text-xs text-muted-foreground">Загрузка...</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {chains.map((chain) => {
-                      const isSelected = localSelectedIds.length === 0 || localSelectedIds.includes(chain.id);
+                    {Object.entries(chainGroups).map(([chainName, { storeIds, logo }]) => {
+                      const isSelected = isChainSelected(storeIds);
                       return (
                         <button
-                          key={chain.id}
-                          onClick={() => toggleChain(chain.id)}
+                          key={chainName}
+                          onClick={() => toggleChain(storeIds)}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${isSelected
                             ? "border-primary bg-primary/10 text-primary"
                             : "border-border bg-secondary/50 text-muted-foreground"
                             }`}
                         >
-                          {chain.logo && (
-                            <img src={chain.logo} alt={chain.name} className="w-4 h-4 rounded object-cover" />
+                          {logo && (
+                            <img src={logo} alt={chainName} className="w-4 h-4 rounded object-cover" />
                           )}
-                          {chain.name}
+                          {chainName}
                           {isSelected && <Check className="w-3 h-3" />}
                         </button>
                       );
@@ -400,9 +397,20 @@ const CartPage = () => {
                         {storeItems.length} {storeItems.length === 1 ? "товар" : "товаров"}
                       </span>
                     </div>
-                    <span className="text-xs font-medium text-foreground">
-                      {storeTotal.toLocaleString()} ₸
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {isOwner && (
+                        <button
+                          onClick={() => switchToChain(chainName, storeItems[0].store_id)}
+                          className="text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                          title="Показать корзину только из этого магазина"
+                        >
+                          Только здесь
+                        </button>
+                      )}
+                      <span className="text-xs font-medium text-foreground">
+                        {storeTotal.toLocaleString()} ₸
+                      </span>
+                    </div>
                   </div>
 
                   {storeItems.map((item, idx) => {
@@ -415,7 +423,7 @@ const CartPage = () => {
                         <div className="flex items-start gap-3">
                           <Link to={`/product/${item.product.uuid}`} className="shrink-0">
                             <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-secondary/50 overflow-hidden">
-                              <img src={item.product.image_url || mascot} alt={item.product.title} className="w-full h-full object-cover" />
+                              <img src={item.ext_product_image || item.product.image_url || mascot} alt={item.ext_product_title || item.product.title} className="w-full h-full object-cover" />
                             </div>
                           </Link>
 
@@ -424,7 +432,7 @@ const CartPage = () => {
                               to={`/product/${item.product.uuid}`}
                               className="text-[13px] sm:text-sm text-foreground line-clamp-2 hover:underline leading-snug"
                             >
-                              {item.product.title}
+                              {item.ext_product_title || item.product.title}
                             </Link>
                             {item.product.measure_unit_qty && item.product.measure_unit_kind && (
                               <p className="text-[11px] text-muted-foreground mt-0.5">{parseFloat(item.product.measure_unit_qty)} {toRuUnit(item.product.measure_unit_kind)}</p>
