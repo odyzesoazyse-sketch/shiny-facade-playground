@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Plus, Trash2, ArrowLeft, Zap, ChevronDown, ChevronUp, Check, Settings, Share, History, Edit2, AlertTriangle, Store, TrendingDown } from "lucide-react";
+import { Minus, Plus, Trash2, ArrowLeft, Zap, ChevronDown, ChevronUp, Check, Settings, Share, History, Edit2, AlertTriangle, Store, TrendingDown, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import { useCart, CartItem } from "@/context/CartContext";
 import StoreLogo from "@/components/StoreLogo";
@@ -19,7 +19,7 @@ import { toRuUnit } from "@/lib/utils";
 const CartPage = () => {
   const {
     cartUuid, cartName, items, unavailableProducts, removeItem, updateQuantity,
-    clearCart, totalPrice, totalItems, isOwner, renameCart, archiveCart, deleteCart,
+    clearCart, totalPrice, totalItems, isOwner, isLoading, renameCart, archiveCart, deleteCart,
     addItem, selectedStoreIds, updateStorePreferences, availableStores
   } = useCart();
   const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -29,8 +29,8 @@ const CartPage = () => {
   useEffect(() => {
     setNewCartName(cartName);
   }, [cartName]);
-  const [showStorePrefs, setShowStorePrefs] = useState(false);
   const [localSelectedIds, setLocalSelectedIds] = useState<number[]>(selectedStoreIds);
+  const [isApplying, setIsApplying] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -173,14 +173,24 @@ const CartPage = () => {
   };
 
   const applyStorePrefs = async () => {
-    await updateStorePreferences(localSelectedIds);
-    toast({ title: "Предпочтения сохранены" });
+    setIsApplying(true);
+    try {
+      await updateStorePreferences(localSelectedIds);
+      toast({ title: "Предпочтения сохранены" });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   const switchToChain = async (chainName: string, fallbackStoreId: number) => {
-    const storeIds = chainGroups[chainName]?.storeIds ?? [fallbackStoreId];
-    await updateStorePreferences(storeIds);
-    toast({ title: `Показываю только ${chainName}` });
+    setIsApplying(true);
+    try {
+      const storeIds = chainGroups[chainName]?.storeIds ?? [fallbackStoreId];
+      await updateStorePreferences(storeIds);
+      toast({ title: `Показываю только ${chainName}` });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   const hasItems = items.length > 0 || unavailableProducts.length > 0;
@@ -279,67 +289,71 @@ const CartPage = () => {
           </div>
         </div>
 
-        {/* Collapsible Store Preferences */}
+        {/* Store Preferences (Now always visible) */}
         {isOwner && (
-          <div className="mb-4">
-            <button
-              onClick={() => setShowStorePrefs(!showStorePrefs)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
+          <div className="mb-4 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               <Store className="w-3.5 h-3.5" />
               Предпочтительные магазины
-              {showStorePrefs ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
+            </div>
 
-            {showStorePrefs && (
-              <div className="mt-2 border border-border rounded-xl p-3 bg-card space-y-3">
-                <p className="text-[11px] text-muted-foreground">
-                  Выберите магазины, в которых вы хотите покупать. Оптимальный микс будет рассчитан только по выбранным.
-                </p>
-                {Object.keys(chainGroups).length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Загрузка...</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(chainGroups).map(([chainName, { storeIds, logo }]) => {
-                      const isSelected = isChainSelected(storeIds);
-                      return (
-                        <button
-                          key={chainName}
-                          onClick={() => toggleChain(storeIds)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${isSelected
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border bg-secondary/50 text-muted-foreground"
-                            }`}
-                        >
-                          {logo && (
-                            <img src={logo} alt={chainName} className="w-4 h-4 rounded object-cover" />
-                          )}
-                          {chainName}
-                          {isSelected && <Check className="w-3 h-3" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                <div className="flex items-center gap-2 pt-1">
-                  <Button size="sm" onClick={applyStorePrefs} className="text-xs h-7">
-                    Применить
-                  </Button>
-                  {localSelectedIds.length > 0 && (
-                    <button
-                      onClick={() => setLocalSelectedIds([])}
-                      className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      Сбросить (все магазины)
-                    </button>
-                  )}
+            <div className="border border-border rounded-xl p-3 bg-card space-y-3">
+              <p className="text-[11px] text-muted-foreground">
+                Выберите магазины, в которых вы хотите покупать. Оптимальный микс будет рассчитан только по выбранным.
+              </p>
+              {Object.keys(chainGroups).length === 0 ? (
+                <p className="text-xs text-muted-foreground">Загрузка...</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(chainGroups).map(([chainName, { storeIds, logo }]) => {
+                    const isSelected = isChainSelected(storeIds);
+                    return (
+                      <button
+                        key={chainName}
+                        onClick={() => toggleChain(storeIds)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${isSelected
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-secondary/50 text-muted-foreground"
+                          }`}
+                      >
+                        <StoreLogo store={chainName} logoUrl={logo || undefined} />
+                        {chainName}
+                        {isSelected && <Check className="w-3 h-3" />}
+                      </button>
+                    );
+                  })}
                 </div>
+              )}
+              <div className="flex items-center gap-3 pt-1">
+                <Button
+                  size="sm"
+                  onClick={applyStorePrefs}
+                  className="text-xs h-7"
+                  disabled={isApplying}
+                >
+                  {isApplying && <Loader2 className="w-3 h-3 animate-spin mr-1" />}
+                  Применить
+                </Button>
+
+                {localSelectedIds.length > 0 && (
+                  <button
+                    onClick={() => setLocalSelectedIds([])}
+                    className="text-[11px] text-primary hover:underline transition-colors font-medium"
+                  >
+                    Выбрать все
+                  </button>
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
 
-        {!hasItems ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="w-10 h-10 text-primary animate-spin opacity-20" />
+            <p className="text-xs text-muted-foreground animate-pulse">Загрузка корзины...</p>
+          </div>
+        ) : !hasItems ? (
           <div className="text-center py-16">
             <img src={mascot} alt="Корзина пуста" className="w-20 h-20 mx-auto mb-3 object-contain opacity-50" />
             <p className="text-muted-foreground text-sm mb-1">Корзина пуста</p>
@@ -401,9 +415,11 @@ const CartPage = () => {
                       {isOwner && (
                         <button
                           onClick={() => switchToChain(chainName, storeItems[0].store_id)}
-                          className="text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                          disabled={isApplying}
+                          className="text-[10px] text-muted-foreground hover:text-primary transition-colors disabled:opacity-50 flex items-center gap-1"
                           title="Показать корзину только из этого магазина"
                         >
+                          {isApplying && <Loader2 className="w-2 h-2 animate-spin" />}
                           Только здесь
                         </button>
                       )}
