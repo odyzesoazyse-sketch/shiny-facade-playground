@@ -59,8 +59,8 @@ const Header = () => {
               >
                 <div
                   className={`relative flex items-center w-full rounded-xl transition-all duration-200 ${isFocused
-                      ? "bg-card border-2 border-primary shadow-[0_0_16px_2px_hsl(var(--primary)/0.2)]"
-                      : "bg-secondary/70 border-2 border-transparent hover:border-border"
+                    ? "bg-card border-2 border-primary shadow-[0_0_16px_2px_hsl(var(--primary)/0.2)]"
+                    : "bg-secondary/70 border-2 border-transparent hover:border-border"
                     }`}
                 >
                   <Search
@@ -79,8 +79,8 @@ const Header = () => {
                   <button
                     type="submit"
                     className={`absolute right-2 w-6 h-6 rounded-lg flex items-center justify-center transition-all ${searchQuery.trim()
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "bg-muted text-muted-foreground"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-muted text-muted-foreground"
                       }`}
                   >
                     <ArrowUp className="w-3 h-3" />
@@ -116,6 +116,27 @@ const Header = () => {
             </nav>
 
             <div className="flex items-center gap-2 shrink-0">
+              <a
+                href="https://t.me/minimalprice_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
+                title="Telegram Бот"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <path d="M22 2L11 13" />
+                  <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                </svg>
+              </a>
+
               <button
                 onClick={toggleTheme}
                 className="flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
