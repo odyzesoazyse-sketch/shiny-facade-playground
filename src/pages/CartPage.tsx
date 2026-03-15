@@ -248,20 +248,24 @@ const CartPage = () => {
                     />
 
                     {availableStores.map((storeName) => {
-                      const hasAll = storeHasAll(storeName);
-                      const storeTotal = hasAll ? calcTotal(storeName) : null;
+                      const info = getStoreInfo(storeName);
+                      const storeTotal = calcTotal(storeName);
 
                       return (
                         <StrategyOption
                           key={storeName}
                           label={`Всё в ${storeName}`}
-                          description={hasAll ? `${uniqueProducts.length} из ${uniqueProducts.length} товаров` : "Не все товары есть"}
+                          description={
+                            info.hasAll
+                              ? `${uniqueProducts.length} из ${uniqueProducts.length} товаров`
+                              : `${info.available.length} из ${uniqueProducts.length} товаров · ${info.missing.length} в другом магазине`
+                          }
                           total={storeTotal}
                           isActive={strategy === storeName}
                           isBest={false}
-                          disabled={!hasAll}
-                          onClick={() => hasAll && applyStrategy(storeName)}
+                          onClick={() => applyStrategy(storeName)}
                           icon={<StoreLogo store={storeName} size="sm" />}
+                          missingItems={info.missing.map(m => m.product.name)}
                         />
                       );
                     })}
