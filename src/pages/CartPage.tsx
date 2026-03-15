@@ -44,13 +44,25 @@ const CartPage = () => {
         return sum + best * quantity;
       }
       const storePrice = product.stores.find((s) => s.store === strat);
-      if (!storePrice) return sum + 999999;
-      return sum + storePrice.price * quantity;
+      if (storePrice) return sum + storePrice.price * quantity;
+      // Fallback to best price for missing items
+      const best = Math.min(...product.stores.map((s) => s.price));
+      return sum + best * quantity;
     }, 0);
   };
 
   const storeHasAll = (storeName: string) =>
     uniqueProducts.every(({ product }) => product.stores.some((s) => s.store === storeName));
+
+  const getStoreInfo = (storeName: string) => {
+    const available = uniqueProducts.filter(({ product }) =>
+      product.stores.some((s) => s.store === storeName)
+    );
+    const missing = uniqueProducts.filter(({ product }) =>
+      !product.stores.some((s) => s.store === storeName)
+    );
+    return { available, missing, hasAll: missing.length === 0 };
+  };
 
   const optimalTotal = calcTotal("optimal");
 
