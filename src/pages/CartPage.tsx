@@ -44,13 +44,25 @@ const CartPage = () => {
         return sum + best * quantity;
       }
       const storePrice = product.stores.find((s) => s.store === strat);
-      if (!storePrice) return sum + 999999;
-      return sum + storePrice.price * quantity;
+      if (storePrice) return sum + storePrice.price * quantity;
+      // Fallback to best price for missing items
+      const best = Math.min(...product.stores.map((s) => s.price));
+      return sum + best * quantity;
     }, 0);
   };
 
   const storeHasAll = (storeName: string) =>
     uniqueProducts.every(({ product }) => product.stores.some((s) => s.store === storeName));
+
+  const getStoreInfo = (storeName: string) => {
+    const available = uniqueProducts.filter(({ product }) =>
+      product.stores.some((s) => s.store === storeName)
+    );
+    const missing = uniqueProducts.filter(({ product }) =>
+      !product.stores.some((s) => s.store === storeName)
+    );
+    return { available, missing, hasAll: missing.length === 0 };
+  };
 
   const optimalTotal = calcTotal("optimal");
 
@@ -236,20 +248,24 @@ const CartPage = () => {
                     />
 
                     {availableStores.map((storeName) => {
-                      const hasAll = storeHasAll(storeName);
-                      const storeTotal = hasAll ? calcTotal(storeName) : null;
+                      const info = getStoreInfo(storeName);
+                      const storeTotal = calcTotal(storeName);
 
                       return (
                         <StrategyOption
                           key={storeName}
                           label={`Всё в ${storeName}`}
-                          description={hasAll ? `${uniqueProducts.length} из ${uniqueProducts.length} товаров` : "Не все товары есть"}
+                          description={
+                            info.hasAll
+                              ? `${uniqueProducts.length} из ${uniqueProducts.length} товаров`
+                              : `${info.available.length} из ${uniqueProducts.length} товаров · ${info.missing.length} в другом магазине`
+                          }
                           total={storeTotal}
                           isActive={strategy === storeName}
                           isBest={false}
-                          disabled={!hasAll}
-                          onClick={() => hasAll && applyStrategy(storeName)}
+                          onClick={() => applyStrategy(storeName)}
                           icon={<StoreLogo store={storeName} size="sm" />}
+                          missingItems={info.missing.map(m => m.product.name)}
                         />
                       );
                     })}
@@ -469,40 +485,48 @@ const CartPage = () => {
 };
 
 const StrategyOption = ({
-  label, description, total, isActive, isBest, disabled, onClick, icon,
+  label, description, total, isActive, isBest, disabled, onClick, icon, missingItems,
 }: {
   label: string; description: string; total: number | null; isActive: boolean;
   isBest: boolean; disabled?: boolean; onClick: () => void; icon: React.ReactNode;
+  missingItems?: string[];
 }) => (
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-150 text-left ${
+    className={`w-full flex flex-col gap-1 px-3.5 py-3 rounded-xl transition-all duration-150 text-left ${
       disabled ? "opacity-35 cursor-not-allowed"
         : isActive ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/30"
         : "bg-secondary/50 hover:bg-secondary text-foreground"
     }`}
   >
-    <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-lg bg-background/20">
-      {icon}
+    <div className="flex items-center gap-3 w-full">
+      <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-lg bg-background/20">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] font-semibold leading-tight">{label}</p>
+        <p className={`text-[11px] mt-0.5 ${isActive ? "opacity-70" : "text-muted-foreground"}`}>{description}</p>
+      </div>
+      <div className="shrink-0 text-right">
+        {total !== null ? (
+          <>
+            <p className="text-sm font-bold tabular-nums">{total.toLocaleString()} ₸</p>
+            {isBest && !isActive && (
+              <p className="text-[10px] font-semibold" style={{ color: "hsl(var(--savings-bg))" }}>лучшая цена</p>
+            )}
+          </>
+        ) : (
+          <p className="text-[11px] text-muted-foreground">—</p>
+        )}
+      </div>
+      {isActive && <Check className="w-4 h-4 shrink-0" />}
     </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-[13px] font-semibold leading-tight">{label}</p>
-      <p className={`text-[11px] mt-0.5 ${isActive ? "opacity-70" : "text-muted-foreground"}`}>{description}</p>
-    </div>
-    <div className="shrink-0 text-right">
-      {total !== null ? (
-        <>
-          <p className="text-sm font-bold tabular-nums">{total.toLocaleString()} ₸</p>
-          {isBest && !isActive && (
-            <p className="text-[10px] font-semibold" style={{ color: "hsl(var(--savings-bg))" }}>лучшая цена</p>
-          )}
-        </>
-      ) : (
-        <p className="text-[11px] text-muted-foreground">—</p>
-      )}
-    </div>
-    {isActive && <Check className="w-4 h-4 shrink-0" />}
+    {missingItems && missingItems.length > 0 && (
+      <div className={`ml-9 text-[10px] leading-tight ${isActive ? "opacity-60" : "text-muted-foreground"}`}>
+        ⚠️ Нет в магазине: {missingItems.map(n => n.split(' ').slice(0, 3).join(' ')).join(', ')} — будут из другого
+      </div>
+    )}
   </button>
 );
 
