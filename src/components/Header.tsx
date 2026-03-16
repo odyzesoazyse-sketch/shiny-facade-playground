@@ -1,10 +1,9 @@
-import { Search, ShoppingCart, MapPin, Home, Tag, ChevronDown, ArrowUp, ScanBarcode, Moon, Sun, LayoutGrid } from "lucide-react";
+import { Search, ShoppingCart, Home, Tag, ArrowUp, ScanBarcode, Moon, Sun, LayoutGrid } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
+import CitySelector from "@/components/CitySelector";
 import logo from "@/assets/logo.png";
-
-const cities = ["Алматы", "Астана"];
 
 const navItems = [
   { to: "/", icon: Home, label: "Главная", matchExact: true },
@@ -14,8 +13,6 @@ const navItems = [
 ];
 
 const Header = () => {
-  const [selectedCity, setSelectedCity] = useState("Алматы");
-  const [cityOpen, setCityOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const { totalItems } = useCart();
 
@@ -44,34 +41,7 @@ const Header = () => {
                 {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
 
-              <div className="relative">
-                <button
-                  onClick={() => setCityOpen(!cityOpen)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>{selectedCity}</span>
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-                {cityOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setCityOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[120px]">
-                      {cities.map((city) => (
-                        <button
-                          key={city}
-                          onClick={() => { setSelectedCity(city); setCityOpen(false); }}
-                          className={`w-full text-left px-3 py-1.5 text-xs hover:bg-accent transition-colors ${
-                            city === selectedCity ? "text-foreground font-medium" : "text-muted-foreground"
-                          }`}
-                        >
-                          {city}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              <CitySelector />
 
               <button
                 className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
